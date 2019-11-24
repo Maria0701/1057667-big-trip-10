@@ -1,7 +1,8 @@
 # Личный проект «Большое путешествие» [![Build status][travis-image]][travis-url]
 
 * Студент: [Мария Баранова](https://up.htmlacademy.ru/ecmascript/10/user/1057667).
-* Наставник: `Неизвестно`.
+* Наставник: [Александр
+Погорелов](https://htmlacademy.ru/profile/id1031283).
 
 ---
 
