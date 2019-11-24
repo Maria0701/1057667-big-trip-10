@@ -5,19 +5,9 @@ import {createListTemplate} from './components/list.js';
 import {createDayCardTemplate} from './components/day-card.js';
 import {createEventItemTemplate} from './components/event-item.js';
 import {createEventEditTemplate} from './components/event-item-edit.js';
+import {createTripInfo} from './components/trip-info.js';
 
 const EVENT_COUNTS = 3;
-
-
-const createTripInfo = () => {
-  return (
-    `  <div class="trip-info__main">
-        <h1 class="trip-info__title">Amsterdam &mdash; ... &mdash; Amsterdam</h1>
-
-        <p class="trip-info__dates">Mar 18&nbsp;&mdash;&nbsp;21</p>
-      </div>`
-  );
-};
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
