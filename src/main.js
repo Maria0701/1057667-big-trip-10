@@ -7,6 +7,8 @@ import {createEventItemTemplate} from './components/event-item.js';
 import {createEventEditTemplate} from './components/event-item-edit.js';
 import {createTripInfo} from './components/trip-info.js';
 import {FILTER_NAMES} from './const.js';
+import {travelItem} from './mocks/travel-points';
+
 
 const EVENT_COUNTS = 3;
 
