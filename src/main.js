@@ -6,6 +6,7 @@ import {createDayCardTemplate} from './components/day-card.js';
 import {createEventItemTemplate} from './components/event-item.js';
 import {createEventEditTemplate} from './components/event-item-edit.js';
 import {createTripInfo} from './components/trip-info.js';
+import {FILTER_NAMES} from './const.js';
 
 const EVENT_COUNTS = 3;
 
@@ -20,7 +21,7 @@ render(mainTripInfoElement, createTripInfo(), `afterbegin`);
 
 const mainTripControls = siteHeaderElement.querySelector(`.trip-main__trip-controls`);
 const mainNavigationPlace = mainTripControls.querySelector(`h2:first-child`);
-render(mainTripControls, createFilterTemplate(), `beforeend`);
+render(mainTripControls, createFilterTemplate(FILTER_NAMES), `beforeend`);
 render(mainNavigationPlace, createMenuTemplate(), `afterend`);
 
 const tripBoard = siteMainElement.querySelector(`.trip-events`);
