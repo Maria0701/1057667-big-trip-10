@@ -7,19 +7,22 @@ import {createEventItemTemplate} from './components/event-item.js';
 import {createEventEditTemplate} from './components/event-item-edit.js';
 import {createTripInfo} from './components/trip-info.js';
 import {FILTER_NAMES} from './const.js';
-import {travelItem} from './mocks/travel-points';
+import {generateTravelItems} from './mocks/travel-points';
+import {createArrayDates} from './components/event-item.js';
+import {createArrayCities} from './components/event-item.js';
 
-
-const EVENT_COUNTS = 3;
+const EVENT_COUNTS = 10;
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
 };
 
+
+const events = generateTravelItems(EVENT_COUNTS);
 const siteMainElement = document.querySelector(`.page-body`);
 const siteHeaderElement = siteMainElement.querySelector(`.page-header`);
 const mainTripInfoElement = siteHeaderElement.querySelector(`.trip-main__trip-info`);
-render(mainTripInfoElement, createTripInfo(), `afterbegin`);
+render(mainTripInfoElement, createTripInfo(createArrayCities(events), createArrayDates(events)), `afterbegin`);
 
 const mainTripControls = siteHeaderElement.querySelector(`.trip-main__trip-controls`);
 const mainNavigationPlace = mainTripControls.querySelector(`h2:first-child`);
@@ -31,12 +34,10 @@ render(tripBoard, createSortingTemplate(), `beforeend`);
 render(tripBoard, createListTemplate(), `beforeend`);
 
 const tripDaysList = tripBoard.querySelector(`.trip-days`);
-render(tripDaysList, createDayCardTemplate(), `beforeend`);
+// createArrayDates(events).slice().sort((a, b) => a - b);
+render(tripDaysList, createDayCardTemplate(createArrayDates(events)), `beforeend`);
 
 const tripEventsList = tripDaysList.querySelector(`.trip-events__list`);
+
 render(tripEventsList, createEventEditTemplate(), `beforeend`);
-new Array(EVENT_COUNTS)
-  .fill(``)
-  .forEach(
-      () => render(tripEventsList, createEventItemTemplate(), `beforeend`)
-  );
+events.slice(1, EVENT_COUNTS).sort((a, b) => a.startDate - b.startDate).forEach((event) => render(tripEventsList, createEventItemTemplate(event), `beforeend`));

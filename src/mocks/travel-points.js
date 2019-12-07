@@ -1,5 +1,4 @@
 import {TRAVEL_POINTS} from '../const.js';
-import {TRAVEL_ADDONS} from '../const.js';
 
 const TRAVEL_CITIES = [
   `Апатиты`,
@@ -13,6 +12,24 @@ const TRAVEL_CITIES = [
   `Ачинск`,
   `Балаково`
 ];
+
+const TRAVEL_ADDONS = [
+  `Add luggage +10 €`,
+  `Switch to comfort class +150 €`,
+  `Add meal +2 €`,
+  `Choose seats +9 €`
+];
+
+const generateTravelAddons = (array) => {
+  return array.map((it) => {
+    const singleAddon = it.split(` `);
+    return {
+      price: it.split(` `)[singleAddon.length - 2].replace(`+`, ``),
+      currency: it.split(` `)[singleAddon.length - 1],
+      name: it.split(` `, singleAddon.length - 2).join(` `)
+    };
+  });
+};
 
 const SIGHTS_PHOTO = `http://picsum.photos/300/150?r=${Math.random()}`;
 
@@ -30,14 +47,13 @@ const getRandomArrayItem = (array) => {
 const getRandomDate = () => {
   const travelDate = new Date();
   const sign = Math.random() > 0.5 ? 1 : -1;
-  const diffValue = sign * getRandomItegerNumber(0, 10);
-  travelDate.setDate(travelDate.getDate() + diffValue);
-
+  const diffValue = sign * getRandomItegerNumber(0, 168);
+  travelDate.setHours(travelDate.getHours() + diffValue);
   return travelDate;
 };
 
-const getRandomEndTime = (date) => {
-  let randomEndDate = date;
+export const getRandomEndTime = (date) => {
+  let randomEndDate = new Date(date);
   const randomTimeHours = (date.getHours() + getRandomItegerNumber(0, 12)) % 24;
   const randomTimeMinutes = (date.getMinutes() + getRandomItegerNumber(0, 60)) % 60;
   if (randomTimeMinutes < date.getMinutes()) {
@@ -48,6 +64,7 @@ const getRandomEndTime = (date) => {
     randomEndDate.setDate(date.getDate() + 1);
   }
   randomEndDate.setHours(randomTimeHours);
+
   return randomEndDate;
 };
 
@@ -64,16 +81,23 @@ const travelAddons = (addons) => {
   .slice(0, 2);
 };
 
-export const travelItem = () => {
-  const startDate = Math.random() > 0.5 ? null : getRandomDate();
+const generateTravelItem = () => {
+  const startDate = getRandomDate();
+  const endDate = getRandomEndTime(startDate);
   return {
     startDate,
-    endDate: getRandomEndTime(startDate),
+    endDate,
     travelCity: getRandomArrayItem(TRAVEL_CITIES),
     travelPoints: getRandomArrayItem(TRAVEL_POINTS),
     description: tripItemDescription(TRIP_DESCRIPTION),
     travelPrice: getRandomItegerNumber(10, 1000),
-    travelAddons: travelAddons(TRAVEL_ADDONS),
+    travelAddons: travelAddons(generateTravelAddons(TRAVEL_ADDONS)),
     photos: SIGHTS_PHOTO
   };
+};
+
+export const generateTravelItems = (count) => {
+  return new Array(count)
+    .fill(``)
+    .map(generateTravelItem);
 };
