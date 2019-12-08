@@ -10,9 +10,10 @@ export const createTripInfo = (cityArray, datesArray) => {
   };
 
   return (
-    `  <div class="trip-info__main">
-        <h1 class="trip-info__title">${cityArray[0]}&mdash; ... &mdash; ${cityArray[cityArray.length - 1]}</h1>
-        <p class="trip-info__dates">${getDatePeriod()}</p>
-      </div>`
+    `<div class="trip-info__main">
+          <h1 class="trip-info__title">${cityArray[0]}&mdash; ... &mdash; ${cityArray[cityArray.length - 1]}</h1>
+          <p class="trip-info__dates">${getDatePeriod()}</p>
+      </div>
+      `
   );
 };

@@ -1,4 +1,4 @@
-import {TRAVEL_POINTS} from '../const.js';
+import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, TRIP_DESCRIPTION} from '../const.js';
 
 const TRAVEL_CITIES = [
   `Апатиты`,
@@ -31,12 +31,18 @@ const generateTravelAddons = (array) => {
   });
 };
 
-const SIGHTS_PHOTO = `http://picsum.photos/300/150?r=${Math.random()}`;
+export const SIGHTS_PHOTO = `http://picsum.photos/300/150?r=${Math.random()}`;
 
-const TRIP_DESCRIPTION = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
-
-const getRandomItegerNumber = (min, max) => {
+export const getRandomItegerNumber = (min, max) => {
   return min + Math.floor(max * Math.random());
+};
+
+export const getPhotoArray = (photo) => {
+  const newArray = [];
+  for (let i = 0; i < getRandomItegerNumber(1, 10); i++) {
+    newArray.push(photo);
+  }
+  return newArray;
 };
 
 const getRandomArrayItem = (array) => {
@@ -44,7 +50,7 @@ const getRandomArrayItem = (array) => {
   return array[randomIndex];
 };
 
-const getRandomDate = () => {
+export const getRandomDate = () => {
   const travelDate = new Date();
   const sign = Math.random() > 0.5 ? 1 : -1;
   const diffValue = sign * getRandomItegerNumber(0, 168);
@@ -68,7 +74,7 @@ export const getRandomEndTime = (date) => {
   return randomEndDate;
 };
 
-const tripItemDescription = (description) => {
+export const tripItemDescription = (description) => {
   return description
     .split(`.`)
     .filter(() => Math.random() > 0.5)
@@ -88,11 +94,11 @@ const generateTravelItem = () => {
     startDate,
     endDate,
     travelCity: getRandomArrayItem(TRAVEL_CITIES),
-    travelPoints: getRandomArrayItem(TRAVEL_POINTS),
+    travelPoints: getRandomArrayItem([...TRAVEL_TRANSPORT, ...TRAVEL_ACTIVITY]),
     description: tripItemDescription(TRIP_DESCRIPTION),
     travelPrice: getRandomItegerNumber(10, 1000),
     travelAddons: travelAddons(generateTravelAddons(TRAVEL_ADDONS)),
-    photos: SIGHTS_PHOTO
+    photos: getPhotoArray(SIGHTS_PHOTO)
   };
 };
 

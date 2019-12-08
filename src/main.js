@@ -1,6 +1,7 @@
 import {createMenuTemplate} from './components/menu.js';
 import {createFilterTemplate} from './components/filter.js';
 import {createSortingTemplate} from './components/sorting.js';
+import {getPriceTotalTemplate} from './components/trip-info-cost.js';
 import {createListTemplate} from './components/list.js';
 import {createDayCardTemplate} from './components/day-card.js';
 import {createEventItemTemplate} from './components/event-item.js';
@@ -10,6 +11,7 @@ import {FILTER_NAMES} from './const.js';
 import {generateTravelItems} from './mocks/travel-points';
 import {createArrayDates} from './components/event-item.js';
 import {createArrayCities} from './components/event-item.js';
+import {createArrayPrices} from './components/event-item.js';
 import {getTimeIso} from './utils.js';
 
 const EVENT_COUNTS = 10;
@@ -34,7 +36,7 @@ const siteMainElement = document.querySelector(`.page-body`);
 const siteHeaderElement = siteMainElement.querySelector(`.page-header`);
 const mainTripInfoElement = siteHeaderElement.querySelector(`.trip-main__trip-info`);
 render(mainTripInfoElement, createTripInfo(createArrayCities(events), createArrayDates(events)), `afterbegin`);
-
+render(mainTripInfoElement, getPriceTotalTemplate(createArrayPrices(events)), `beforeend`);
 const mainTripControls = siteHeaderElement.querySelector(`.trip-main__trip-controls`);
 const mainNavigationPlace = mainTripControls.querySelector(`h2:first-child`);
 render(mainTripControls, createFilterTemplate(FILTER_NAMES), `beforeend`);
@@ -52,7 +54,7 @@ const tripEventsLists = tripDaysList.querySelectorAll(`.trip-events__list`);
 
 const singleDateContainer = (list, event) => {
   let singleDayContainer;
-  [...list].forEach((it) => {
+  list.forEach((it) => {
     if (it.id === getTimeIso(event.startDate)) {
       singleDayContainer = it;
     }

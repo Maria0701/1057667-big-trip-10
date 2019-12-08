@@ -14,6 +14,12 @@ export const createArrayCities = (array) => {
   return cities;
 };
 
+export const createArrayPrices = (array) => {
+  const dates = [];
+  array.forEach((it) => dates.push(it.travelPrice));
+  return dates;
+};
+
 const generateTravelAddonMarkup = (addons) => {
   return addons
   .map((addon) => {
