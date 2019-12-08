@@ -30,6 +30,9 @@ const generateTravelAddonMarkup = (addons) => {
 
 export const createEventItemTemplate = (event) => {
   const {startDate, endDate, travelCity, travelPoints, travelPrice, travelAddons} = event;
+  const getTime = (fullDate) => {
+    return `${fullDate.getHours()}:${fullDate.getMinutes()}`;
+  };
 
   return (
     `<li class="trip-events__item">
@@ -41,9 +44,9 @@ export const createEventItemTemplate = (event) => {
 
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="${getTimeIso(startDate)}T${getEventTime(startDate)}">${getEventTime(startDate)}</time>
+            <time class="event__start-time" datetime="${getTimeIso(startDate)}T${getTime(startDate)}">${getEventTime(startDate)}</time>
             &mdash;
-            <time class="event__end-time" datetime="${getTimeIso(endDate)}T${getEventTime(endDate)}">${getEventTime(endDate)}</time>
+            <time class="event__end-time" datetime="${getTimeIso(endDate)}T${getTime(endDate)}">${getEventTime(endDate)}</time>
           </p>
           <p class="event__duration">${getTimeDifference(startDate, endDate)}</p>
         </div>

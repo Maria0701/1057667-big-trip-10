@@ -10,6 +10,7 @@ import {FILTER_NAMES} from './const.js';
 import {generateTravelItems} from './mocks/travel-points';
 import {createArrayDates} from './components/event-item.js';
 import {createArrayCities} from './components/event-item.js';
+import {getTimeIso} from './utils.js';
 
 const EVENT_COUNTS = 10;
 
@@ -21,8 +22,10 @@ const render = (container, template, place) => {
 const events = generateTravelItems(EVENT_COUNTS);
 const singleDates = (evts) => {
   const setOfSingleDates = new Set();
-  evts.map((evt) =>
-    setOfSingleDates.add(evt.setHours(0, 0, 0, 0))
+  evts.map((evt) =>{
+    const dateCopy = new Date(evt);
+    setOfSingleDates.add(dateCopy.setHours(0, 0, 0, 0));
+  }
   );
   return setOfSingleDates;
 };
@@ -45,6 +48,14 @@ const tripDaysList = tripBoard.querySelector(`.trip-days`);
 render(tripDaysList, createDayCardTemplate(Array.from(singleDates(createArrayDates(events))).slice().sort((a, b) => a - b)), `beforeend`);
 
 const tripEventsList = tripDaysList.querySelector(`.trip-events__list`);
+const tripEventsLists = tripDaysList.querySelectorAll(`.trip-events__list`);
+
+const container = (list, event) => {
+  list.forEach((it) => it.id === getTimeIso(event.startDate)
+  );
+};
 
 render(tripEventsList, createEventEditTemplate(), `beforeend`);
-events.slice(1, EVENT_COUNTS).sort((a, b) => a.startDate - b.startDate).forEach((event) => render(tripEventsList, createEventItemTemplate(event), `beforeend`));
+events.slice()
+  .sort((a, b) => a.startDate - b.startDate)
+  .forEach((event) => render(container(tripEventsLists, event), createEventItemTemplate(event), `beforeend`));

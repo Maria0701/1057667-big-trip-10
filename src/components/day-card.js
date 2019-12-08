@@ -14,7 +14,7 @@ export const createDayCardTemplate = (dates) => {
             <time class="day__date" datetime="${getTimeIso(date)}"> ${tripDate}
             </time>
           </div>
-        <ul class="trip-events__list">
+        <ul class="trip-events__list" id="${getTimeIso(date)}">
         </ul>
       </li>`
     );
