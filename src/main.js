@@ -19,6 +19,14 @@ const render = (container, template, place) => {
 
 
 const events = generateTravelItems(EVENT_COUNTS);
+const singleDates = (evts) => {
+  const setOfSingleDates = new Set();
+  evts.map((evt) =>
+    setOfSingleDates.add(evt.setHours(0, 0, 0, 0))
+  );
+  return setOfSingleDates;
+};
+
 const siteMainElement = document.querySelector(`.page-body`);
 const siteHeaderElement = siteMainElement.querySelector(`.page-header`);
 const mainTripInfoElement = siteHeaderElement.querySelector(`.trip-main__trip-info`);
@@ -34,8 +42,7 @@ render(tripBoard, createSortingTemplate(), `beforeend`);
 render(tripBoard, createListTemplate(), `beforeend`);
 
 const tripDaysList = tripBoard.querySelector(`.trip-days`);
-// createArrayDates(events).slice().sort((a, b) => a - b);
-render(tripDaysList, createDayCardTemplate(createArrayDates(events)), `beforeend`);
+render(tripDaysList, createDayCardTemplate(Array.from(singleDates(createArrayDates(events))).slice().sort((a, b) => a - b)), `beforeend`);
 
 const tripEventsList = tripDaysList.querySelector(`.trip-events__list`);
 

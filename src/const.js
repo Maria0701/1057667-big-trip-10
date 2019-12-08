@@ -13,6 +13,12 @@ export const MONTHS = [
   `Dec`
 ];
 
+export const MILISECONDS = {
+  MILISECONDS_IN_NINUTE: 1000 * 60,
+  MILISECONDS_IN_HOURS: 1000 * 60 * 60,
+  MILISECONDS_IN_DAYS: 1000 * 60 * 60 * 24
+};
+
 export const TRAVEL_POINTS = [
   `Taxi`,
   `Bus`,
