@@ -50,12 +50,17 @@ render(tripDaysList, createDayCardTemplate(Array.from(singleDates(createArrayDat
 const tripEventsList = tripDaysList.querySelector(`.trip-events__list`);
 const tripEventsLists = tripDaysList.querySelectorAll(`.trip-events__list`);
 
-const container = (list, event) => {
-  list.forEach((it) => it.id === getTimeIso(event.startDate)
-  );
+const singleDateContainer = (list, event) => {
+  let singleDayContainer;
+  [...list].forEach((it) => {
+    if (it.id === getTimeIso(event.startDate)) {
+      singleDayContainer = it;
+    }
+  });
+  return singleDayContainer;
 };
 
 render(tripEventsList, createEventEditTemplate(), `beforeend`);
 events.slice()
   .sort((a, b) => a.startDate - b.startDate)
-  .forEach((event) => render(container(tripEventsLists, event), createEventItemTemplate(event), `beforeend`));
+  .forEach((event) => render(singleDateContainer(tripEventsLists, event), createEventItemTemplate(event), `beforeend`));
