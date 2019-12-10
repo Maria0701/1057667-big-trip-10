@@ -3,21 +3,15 @@ import {getTimeDifference} from '../utils.js';
 import {getTimeIso} from '../utils.js';
 
 export const createArrayDates = (array) => {
-  const dates = [];
-  array.forEach((it) => dates.push(it.startDate));
-  return dates;
+  return array.map((it) => it.startDate);
 };
 
 export const createArrayCities = (array) => {
-  const cities = [];
-  array.forEach((it) => cities.push(it.travelCity));
-  return cities;
+  return array.map((it) => it.travelCity);
 };
 
 export const createArrayPrices = (array) => {
-  const dates = [];
-  array.forEach((it) => dates.push(it.travelPrice));
-  return dates;
+  return array.map((it) => it.travelPrice);
 };
 
 const generateTravelAddonMarkup = (addons) => {
