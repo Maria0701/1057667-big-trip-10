@@ -1,6 +1,5 @@
-import {getEventTime} from '../utils.js';
-import {getTimeDifference} from '../utils.js';
-import {getTimeIso} from '../utils.js';
+import {getEventTime, getTimeDifference, getTimeIso, createElement} from '../utils.js';
+
 
 export const createArrayDates = (array) => {
   return array.map((it) => it.startDate);
@@ -28,7 +27,7 @@ const generateTravelAddonMarkup = (addons) => {
     .join(`\n`);
 };
 
-export const createEventItemTemplate = (event) => {
+const createEventItemTemplate = (event) => {
   const {startDate, endDate, travelCity, travelPoints, travelPrice, travelAddons} = event;
   const getTime = (fullDate) => {
     return `${fullDate.getHours()}:${fullDate.getMinutes()}`;
@@ -67,3 +66,25 @@ export const createEventItemTemplate = (event) => {
     </li>`
   );
 };
+
+export default class Event {
+  constructor(event) {
+    this._event = event;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEventItemTemplate(this._event);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

@@ -1,4 +1,4 @@
-import {getTimeIso} from '../utils.js';
+import {getTimeIso, createElement} from '../utils.js';
 import {MONTHS} from '../const.js';
 
 export const createDayCardTemplate = (dates) => {
@@ -19,3 +19,25 @@ export const createDayCardTemplate = (dates) => {
     );
   }).join(`\n`);
 };
+
+export default class SingleDate {
+  constructor(dates) {
+    this._dates = dates;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createDayCardTemplate(this._dates);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
