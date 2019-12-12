@@ -3,7 +3,7 @@ import FilterComponent from './components/filter.js';
 import SortingComponent from './components/sorting.js';
 import TotalPriceComponent from './components/trip-info-cost.js';
 import EventsListComponent from './components/list.js';
-import {createDayCardTemplate} from './components/day-card.js';
+import DatesComponent from './components/day-card.js';
 import EventComponent from './components/event-item.js';
 import ItemEditComponent from './components/event-item-edit.js';
 import TripInfoElement from './components/trip-info.js';
@@ -15,11 +15,6 @@ import {createArrayPrices} from './components/event-item.js';
 import {getTimeIso, RenderPosition, render} from './utils.js';
 
 const EVENT_COUNTS = 10;
-
-const render1 = (container, template, place) => {
-  container.insertAdjacentHTML(place, template);
-};
-
 
 const events = generateTravelItems(EVENT_COUNTS);
 const singleDates = (evts) => {
@@ -49,10 +44,10 @@ render(tripBoard, new EventsListComponent().getElement(), RenderPosition.BEFOREE
 const tripDaysList = tripBoard.querySelector(`.trip-days`);
 const daysAToBeEvents = Array.from(singleDates(createArrayDates(events))).slice().sort((a, b) => a - b);
 
-render1(tripDaysList, createDayCardTemplate(daysAToBeEvents), `beforeend`);
+const datesComponent = new DatesComponent(daysAToBeEvents);
+render(tripDaysList, datesComponent.getElement(), RenderPosition.BEFOREEND);
 
-const tripEventsList = tripDaysList.querySelector(`.trip-events__list`);
-const tripEventsLists = tripDaysList.querySelectorAll(`.trip-events__list`);
+const tripEventsLists = datesComponent.getElement().querySelectorAll(`.trip-events__list`);
 
 const singleDateContainer = (list, event) => {
   let singleDayContainer;
@@ -64,8 +59,24 @@ const singleDateContainer = (list, event) => {
   return singleDayContainer;
 };
 
-render(tripEventsList, new ItemEditComponent(events[1]).getElement(), RenderPosition.BEFOREEND);
+const renderEvent = (event) => {
+  const eventComponent = new EventComponent(event);
+  const eventEditComponent = new ItemEditComponent(event);
+
+  const editButton = eventComponent.getElement().querySelector(`.event__rollup-btn`);
+  const saveButton = eventEditComponent.getElement().querySelector(`.event__save-btn`);
+
+  editButton.addEventListener(`click`, () => {
+    singleDateContainer(tripEventsLists, event).replaceChild(eventEditComponent.getElement(), eventComponent.getElement());
+  });
+
+  saveButton.addEventListener(`click`, () => {
+    singleDateContainer(tripEventsLists, event).replaceChild(eventComponent.getElement(), eventEditComponent.getElement());
+  });
+
+  render(singleDateContainer(tripEventsLists, event), eventComponent.getElement(), RenderPosition.BEFOREEND);
+};
 
 events.slice()
   .sort((a, b) => a.startDate - b.startDate)
-  .forEach((event) => render(singleDateContainer(tripEventsLists, event), new EventComponent(event).getElement(), RenderPosition.BEFOREEND));
+  .forEach((event) => renderEvent(event));
