@@ -42,12 +42,15 @@ render(tripBoard, new SortingComponent().getElement(), RenderPosition.BEFOREEND)
 render(tripBoard, new EventsListComponent().getElement(), RenderPosition.BEFOREEND);
 
 const tripDaysList = tripBoard.querySelector(`.trip-days`);
-const daysAToBeEvents = Array.from(singleDates(createArrayDates(events))).slice().sort((a, b) => a - b);
+const singleDatesArray = Array.from(singleDates(createArrayDates(events)))
+.slice()
+.sort((a, b) => a - b);
 
-const datesComponent = new DatesComponent(daysAToBeEvents);
-render(tripDaysList, datesComponent.getElement(), RenderPosition.BEFOREEND);
+singleDatesArray
+.forEach((date) => render(tripDaysList, new DatesComponent(date, singleDatesArray.indexOf(date)).getElement(), RenderPosition.BEFOREEND));
 
-const tripEventsLists = datesComponent.getElement().querySelectorAll(`.trip-events__list`);
+
+const tripEventsLists = tripDaysList.querySelectorAll(`.trip-events__list`);
 
 const singleDateContainer = (list, event) => {
   let singleDayContainer;
