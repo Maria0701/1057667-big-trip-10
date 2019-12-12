@@ -1,8 +1,13 @@
 import {createElement} from '../utils.js';
 
 const getPriceTotalTemplate = (priceArray) => {
-  const totalPrice = priceArray.reduce((sum, current) =>
-    sum + current);
+  let totalPrice;
+  if (!priceArray) {
+    totalPrice = 0;
+  } else {
+    totalPrice = priceArray.reduce((sum, current) =>
+      sum + current);
+  }
   return (
     `<p class="trip-info__cost">
     Total: &euro;&nbsp;<span class="trip-info__cost-value">${totalPrice}</span>
