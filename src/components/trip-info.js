@@ -1,5 +1,7 @@
 import {MONTHS} from '../const.js';
-export const createTripInfo = (cityArray, datesArray) => {
+import {createElement} from '../utils.js';
+
+const createTripInfo = (cityArray, datesArray) => {
   const getDatePeriod = () => {
     const newArray = datesArray.slice().sort((a, b) => a - b);
     const firstDate = MONTHS[newArray[0].getMonth()] + ` ` + newArray[0].getDate();
@@ -17,3 +19,26 @@ export const createTripInfo = (cityArray, datesArray) => {
       `
   );
 };
+
+export default class TripInfo {
+  constructor(cities, dates) {
+    this._cities = cities;
+    this._dates = dates;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createTripInfo(this._cities, this._dates);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
