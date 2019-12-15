@@ -1,5 +1,5 @@
-import {getEventTime, getTimeDifference, getTimeIso, createElement} from '../utils.js';
-
+import {getEventTime, getTimeDifference, getTimeIso} from '../utils/common.js';
+import AbstractComponent from './abstract-component.js';
 
 export const createArrayDates = (array) => {
   return array.map((it) => it.startDate);
@@ -67,24 +67,13 @@ const createEventItemTemplate = (event) => {
   );
 };
 
-export default class Event {
+export default class Event extends AbstractComponent {
   constructor(event) {
+    super();
     this._event = event;
-    this._element = null;
   }
 
   getTemplate() {
     return createEventItemTemplate(this._event);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

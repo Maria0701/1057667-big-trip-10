@@ -1,5 +1,6 @@
 import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, TRAVEL_CITIES, TRAVEL_ADDONS, TRIP_DESCRIPTION} from '../const.js';
-import {createElement, getDateFormatEditor} from '../utils.js';
+import {getDateFormatEditor} from '../utils/common.js';
+import AbstractComponent from './abstract-component.js';
 import {tripItemDescription, getPhotoArray, SIGHTS_PHOTO} from '../mocks/travel-points';
 
 const createEventsChooserMurkup = (choosers, currentChooser) => {
@@ -143,24 +144,13 @@ const createEventEditTemplate = (event) => {
   );
 };
 
-export default class ItemEdit {
+export default class ItemEdit extends AbstractComponent {
   constructor(event) {
+    super();
     this._event = event;
-    this._element = null;
   }
 
   getTemplate() {
     return createEventEditTemplate(this._event);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

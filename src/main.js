@@ -13,7 +13,8 @@ import {generateTravelItems} from './mocks/travel-points';
 import {createArrayDates} from './components/event-item.js';
 import {createArrayCities} from './components/event-item.js';
 import {createArrayPrices} from './components/event-item.js';
-import {getTimeIso, RenderPosition, render} from './utils.js';
+import {getTimeIso} from './utils/common.js';
+import {RenderPosition, render} from './utils/render.js';
 
 const EVENT_COUNTS = 10;
 
