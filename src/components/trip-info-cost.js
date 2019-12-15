@@ -2,7 +2,7 @@ import AbstractComponent from './abstract-component.js';
 
 const getPriceTotalTemplate = (priceArray) => {
   let totalPrice;
-  if (!priceArray) {
+  if (priceArray.length === 0) {
     totalPrice = 0;
   } else {
     totalPrice = priceArray.reduce((sum, current) =>

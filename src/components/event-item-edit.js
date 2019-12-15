@@ -159,7 +159,7 @@ export default class ItemEdit extends AbstractComponent {
       .addEventListener(`click`, handler);
   }
 
-  setSaveRollUpHandler(handler) {
+  setRollUpHandler(handler) {
     this.getElement().querySelector(`.event__rollup-btn`)
       .addEventListener(`click`, handler);
   }
