@@ -14,7 +14,7 @@ import {createArrayDates} from './components/event-item.js';
 import {createArrayCities} from './components/event-item.js';
 import {createArrayPrices} from './components/event-item.js';
 import {getTimeIso} from './utils/common.js';
-import {RenderPosition, render} from './utils/render.js';
+import {RenderPosition, render, replace} from './utils/render.js';
 
 const EVENT_COUNTS = 10;
 
@@ -24,20 +24,23 @@ const siteMainElement = document.querySelector(`.page-body`);
 const siteHeaderElement = siteMainElement.querySelector(`.page-header`);
 const mainTripInfoElement = siteHeaderElement.querySelector(`.trip-main__trip-info`);
 const mainTripControls = siteHeaderElement.querySelector(`.trip-main__trip-controls`);
-render(mainTripControls, new FilterComponent(FILTER_NAMES).getElement(), RenderPosition.BEFOREEND);
-render(mainTripControls, new SiteMenuComponent().getElement(), RenderPosition.AFTERBEGIN);
+render(mainTripControls, new FilterComponent(FILTER_NAMES), RenderPosition.BEFOREEND);
+render(mainTripControls, new SiteMenuComponent(), RenderPosition.AFTERBEGIN);
 
 const tripBoard = siteMainElement.querySelector(`.trip-events`);
 
 if (EVENT_COUNTS === 0) {
-  render(tripBoard, new NoEventsComponent().getElement(), RenderPosition.BEFOREEND);
-  render(mainTripInfoElement, new TotalPriceComponent(0).getElement(), RenderPosition.BEFOREEND);
+  render(tripBoard, new NoEventsComponent(), RenderPosition.BEFOREEND);
+  render(mainTripInfoElement, new TotalPriceComponent(0), RenderPosition.BEFOREEND);
 } else {
-  render(mainTripInfoElement, new TripInfoElement(createArrayCities(events), createArrayDates(events)).getElement(), RenderPosition.AFTERBEGIN);
-  render(mainTripInfoElement, new TotalPriceComponent(createArrayPrices(events)).getElement(), RenderPosition.BEFOREEND);
-  render(tripBoard, new SortingComponent().getElement(), RenderPosition.BEFOREEND);
+  render(mainTripInfoElement, new TripInfoElement(createArrayCities(events), createArrayDates(events)), RenderPosition.AFTERBEGIN);
+
+  render(mainTripInfoElement, new TotalPriceComponent(createArrayPrices(events)), RenderPosition.BEFOREEND);
+
+  render(tripBoard, new SortingComponent(), RenderPosition.BEFOREEND);
+
   const eventListComponent = new EventsListComponent();
-  render(tripBoard, eventListComponent.getElement(), RenderPosition.BEFOREEND);
+  render(tripBoard, eventListComponent, RenderPosition.BEFOREEND);
 
   const singleDates = (evts) => {
     const setOfSingleDates = new Set();
@@ -55,7 +58,7 @@ if (EVENT_COUNTS === 0) {
     .sort((a, b) => a - b);
 
   singleDatesArray
-    .forEach((date) => render(tripDaysList, new DatesComponent(date, singleDatesArray.indexOf(date)).getElement(), RenderPosition.BEFOREEND));
+    .forEach((date) => render(tripDaysList, new DatesComponent(date, singleDatesArray.indexOf(date)), RenderPosition.BEFOREEND));
 
 
   const tripEventsLists = tripDaysList.querySelectorAll(`.trip-events__list`);
@@ -82,29 +85,27 @@ if (EVENT_COUNTS === 0) {
     const eventComponent = new EventComponent(event);
     const eventEditComponent = new ItemEditComponent(event);
 
-    const editButton = eventComponent.getElement().querySelector(`.event__rollup-btn`);
-    const saveButton = eventEditComponent.getElement().querySelector(`.event__save-btn`);
-
     const replaceEventToEdit = () => {
-      place.replaceChild(eventEditComponent.getElement(), eventComponent.getElement());
+      replace(eventEditComponent, eventComponent);
     };
 
     const replaceEditToEvent = () => {
-      place.replaceChild(eventComponent.getElement(), eventEditComponent.getElement());
+      replace(eventComponent, eventEditComponent);
     };
 
-    editButton.addEventListener(`click`, () => {
+    eventComponent.setEditButtonEventHandler(() => {
       replaceEventToEdit();
       document.addEventListener(`keydown`, onEscKeyDown);
     });
 
-    saveButton.addEventListener(`submit`, (evt) => {
+    eventEditComponent.setSaveButtonHandler((evt) => {
       evt.preventDefault();
       replaceEditToEvent();
-
     });
 
-    render(place, eventComponent.getElement(), RenderPosition.BEFOREEND);
+    eventEditComponent.setSaveRollUpHandler(replaceEditToEvent);
+
+    render(place, eventComponent, RenderPosition.BEFOREEND);
   };
 
   events.slice()

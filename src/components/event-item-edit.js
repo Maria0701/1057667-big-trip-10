@@ -153,4 +153,14 @@ export default class ItemEdit extends AbstractComponent {
   getTemplate() {
     return createEventEditTemplate(this._event);
   }
+
+  setSaveButtonHandler(handler) {
+    this.getElement().querySelector(`.event__save-btn`)
+      .addEventListener(`click`, handler);
+  }
+
+  setSaveRollUpHandler(handler) {
+    this.getElement().querySelector(`.event__rollup-btn`)
+      .addEventListener(`click`, handler);
+  }
 }
