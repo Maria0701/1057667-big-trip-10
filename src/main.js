@@ -3,9 +3,9 @@ import FilterComponent from './components/filter.js';
 import {FILTER_NAMES} from './const.js';
 import {generateTravelItems} from './mocks/travel-points';
 import {RenderPosition, render} from './utils/render.js';
-import BoardController from './controllers/board.js';
+import TripController from './controllers/board.js';
 
-const EVENT_COUNTS = 0;
+const EVENT_COUNTS = 25;
 
 const events = generateTravelItems(EVENT_COUNTS);
 
@@ -18,6 +18,6 @@ render(mainTripControls, new SiteMenuComponent(), RenderPosition.AFTERBEGIN);
 
 const tripBoard = siteMainElement.querySelector(`.trip-events`);
 
-const bardController = new BoardController(tripBoard, events);
+const bardController = new TripController(tripBoard, events);
 
 bardController.render();

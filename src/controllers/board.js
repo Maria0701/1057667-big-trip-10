@@ -13,7 +13,7 @@ import {getTimeIso} from '../utils/common.js';
 import {RenderPosition, render, replace} from '../utils/render.js';
 
 
-export const renderEvent = (place, event) => {
+const renderEvent = (place, event) => {
   const onEscKeyDown = (evt) => {
     const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
     if (isEscKey) {
