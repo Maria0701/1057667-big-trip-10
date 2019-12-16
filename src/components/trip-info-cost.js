@@ -1,8 +1,8 @@
-import {createElement} from '../utils.js';
+import AbstractComponent from './abstract-component.js';
 
 const getPriceTotalTemplate = (priceArray) => {
   let totalPrice;
-  if (!priceArray) {
+  if (priceArray.length === 0) {
     totalPrice = 0;
   } else {
     totalPrice = priceArray.reduce((sum, current) =>
@@ -14,24 +14,13 @@ const getPriceTotalTemplate = (priceArray) => {
   </p>`);
 };
 
-export default class TripCost {
+export default class TripCost extends AbstractComponent {
   constructor(cost) {
+    super();
     this._cost = cost;
-    this._element = null;
   }
 
   getTemplate() {
     return getPriceTotalTemplate(this._cost);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

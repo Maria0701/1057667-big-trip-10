@@ -1,4 +1,5 @@
-import {getTimeIso, createElement} from '../utils.js';
+import {getTimeIso} from '../utils/common.js';
+import AbstractComponent from './abstract-component.js';
 import {MONTHS} from '../const.js';
 
 const createDayCardTemplate = (date, order) => {
@@ -17,25 +18,14 @@ const createDayCardTemplate = (date, order) => {
   );
 };
 
-export default class DateComponent {
+export default class DateComponent extends AbstractComponent {
   constructor(date, index) {
+    super();
     this._date = date;
     this._index = index;
-    this._element = null;
   }
 
   getTemplate() {
     return createDayCardTemplate(this._date, this._index);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
