@@ -74,6 +74,10 @@ const renderEvents = (dayContainer, events) => {
   events.forEach((event) => renderEvent(dayContainer, event));
 };
 
+const renderSingleDatesContainers = (place, array) => {
+  array.forEach((element) => render(place, new DatesComponent(element, array.indexOf(getDateWithoutMinutes(element))), RenderPosition.BEFOREEND));
+};
+
 
 export default class BoardController {
   constructor(container, events) {
@@ -108,8 +112,7 @@ export default class BoardController {
     render(container, eventListComponent, RenderPosition.BEFOREEND);
     const tripDaysList = container.querySelector(`.trip-days`);
 
-    getSingleDatesArray(this._events)
-        .forEach((date) => render(tripDaysList, new DatesComponent(date, getSingleDatesArray(this._events).indexOf(getDateWithoutMinutes(date))), RenderPosition.BEFOREEND));
+    renderSingleDatesContainers(tripDaysList, getSingleDatesArray(this._events));
 
     let tripEventsLists = tripDaysList.querySelectorAll(`.trip-events__list`);
 
@@ -137,8 +140,7 @@ export default class BoardController {
       tripDaysList.innerHTML = ``;
 
       if (sortType === SortType.DEFAULT_EVENT) {
-        getSingleDatesArray(sortedEvents)
-            .forEach((sortedEvent) => render(tripDaysList, new DatesComponent(sortedEvent, getSingleDatesArray(sortedEvents).indexOf(getDateWithoutMinutes(sortedEvent))), RenderPosition.BEFOREEND));
+        renderSingleDatesContainers(tripDaysList, getSingleDatesArray(sortedEvents));
 
         tripEventsLists = tripDaysList.querySelectorAll(`.trip-events__list`);
 
@@ -152,7 +154,5 @@ export default class BoardController {
 
       return;
     });
-
-
   }
 }
