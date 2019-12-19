@@ -1,4 +1,4 @@
-import SortingComponent from '../components/sorting.js';
+import SortingComponent, {SortType} from '../components/sorting.js';
 import TotalPriceComponent from '../components/trip-info-cost.js';
 import EventsListComponent from '../components/list.js';
 import DatesComponent from '../components/day-card.js';
@@ -9,7 +9,7 @@ import NoEventsComponent from '../components/no-events.js';
 import {createArrayDates} from '../components/event-item.js';
 import {createArrayCities} from '../components/event-item.js';
 import {createArrayPrices} from '../components/event-item.js';
-import {getTimeIso} from '../utils/common.js';
+import {getDateWithoutMinutes} from '../utils/common.js';
 import {RenderPosition, render, replace} from '../utils/render.js';
 
 
@@ -42,10 +42,40 @@ const renderEvent = (place, event) => {
     evt.preventDefault();
     replaceEditToEvent();
   });
-
   eventEditComponent.setRollUpHandler(replaceEditToEvent);
-
   render(place, eventComponent, RenderPosition.BEFOREEND);
+};
+
+const singleDates = (evts) => {
+  const setOfSingleDates = new Set();
+  evts.map((evt) =>{
+    setOfSingleDates.add(getDateWithoutMinutes(evt));
+  });
+  return setOfSingleDates;
+};
+
+const getSingleDatesArray = (events) => {
+  return Array.from(singleDates(createArrayDates(events)))
+    .slice()
+    .sort((a, b) => a - b);
+};
+
+const singleDateContainer = (list, event) => {
+  let singleDayContainer;
+  list.forEach((it) => {
+    if (it.id === new Date(getDateWithoutMinutes(event.startDate)).toISOString()) {
+      singleDayContainer = it;
+    }
+  });
+  return singleDayContainer;
+};
+
+const renderEvents = (dayContainer, events) => {
+  events.forEach((event) => renderEvent(dayContainer, event));
+};
+
+const renderSingleDatesContainers = (place, array) => {
+  array.forEach((element) => render(place, new DatesComponent(element, array.indexOf(getDateWithoutMinutes(element))), RenderPosition.BEFOREEND));
 };
 
 
@@ -65,54 +95,64 @@ export default class BoardController {
     const siteMainElement = document.querySelector(`.page-body`);
     const siteHeaderElement = siteMainElement.querySelector(`.page-header`);
     const mainTripInfoElement = siteHeaderElement.querySelector(`.trip-main__trip-info`);
+
     if (this._events.length === 0) {
       render(container, this._noEventsComponent, RenderPosition.BEFOREEND);
       render(mainTripInfoElement, this._totalPriceComponent, RenderPosition.BEFOREEND);
-    } else {
-      render(mainTripInfoElement, this._tripInfoComponent, RenderPosition.AFTERBEGIN);
-
-      render(mainTripInfoElement, this._totalPriceComponent, RenderPosition.BEFOREEND);
-
-      render(container, this._sortingComponent, RenderPosition.BEFOREEND);
-
-      const eventListComponent = this._eventListComponent;
-      render(container, eventListComponent, RenderPosition.BEFOREEND);
-
-      const singleDates = (evts) => {
-        const setOfSingleDates = new Set();
-        evts.map((evt) =>{
-          const dateCopy = new Date(evt);
-          setOfSingleDates.add(dateCopy.setHours(0, 0, 0, 0));
-        }
-        );
-        return setOfSingleDates;
-      };
-
-      const tripDaysList = container.querySelector(`.trip-days`);
-      const singleDatesArray = Array.from(singleDates(createArrayDates(this._events)))
-        .slice()
-        .sort((a, b) => a - b);
-
-      singleDatesArray
-        .forEach((date) => render(tripDaysList, new DatesComponent(date, singleDatesArray.indexOf(date)), RenderPosition.BEFOREEND));
-
-
-      const tripEventsLists = tripDaysList.querySelectorAll(`.trip-events__list`);
-
-      const singleDateContainer = (list, event) => {
-        let singleDayContainer;
-        list.forEach((it) => {
-          if (it.id === getTimeIso(event.startDate)) {
-            singleDayContainer = it;
-          }
-        });
-        return singleDayContainer;
-      };
-
-      this._events.slice()
-      .sort((a, b) => a.startDate - b.startDate)
-      .forEach((event) => renderEvent(singleDateContainer(tripEventsLists, event), event));
+      return;
     }
 
+    render(mainTripInfoElement, this._tripInfoComponent, RenderPosition.AFTERBEGIN);
+
+    render(mainTripInfoElement, this._totalPriceComponent, RenderPosition.BEFOREEND);
+
+    render(container, this._sortingComponent, RenderPosition.BEFOREEND);
+
+    const eventListComponent = this._eventListComponent;
+    render(container, eventListComponent, RenderPosition.BEFOREEND);
+    const tripDaysList = container.querySelector(`.trip-days`);
+
+    renderSingleDatesContainers(tripDaysList, getSingleDatesArray(this._events));
+
+    let tripEventsLists = tripDaysList.querySelectorAll(`.trip-events__list`);
+
+    this._events.slice()
+      .sort((a, b) => a.startDate - b.startDate)
+      .forEach((event) => renderEvent(singleDateContainer(tripEventsLists, event), event));
+
+    this._sortingComponent.sortTypeChangeHandler((sortType) => {
+      let sortedEvents = [];
+      switch (sortType) {
+        case SortType.TIME_DOWN:
+          sortedEvents = this._events.slice()
+            .sort((a, b) => ((b.endDate - b.startDate) - (a.endDate - a.startDate)));
+          break;
+        case SortType.PRICE_DOWN:
+          sortedEvents = this._events.slice()
+            .sort((a, b) => b.travelPrice - a.travelPrice);
+          break;
+        case SortType.DEFAULT_EVENT:
+          sortedEvents = this._events.slice()
+            .sort((a, b) => a.startDate - b.startDate);
+          break;
+      }
+
+      tripDaysList.innerHTML = ``;
+
+      if (sortType === SortType.DEFAULT_EVENT) {
+        renderSingleDatesContainers(tripDaysList, getSingleDatesArray(sortedEvents));
+
+        tripEventsLists = tripDaysList.querySelectorAll(`.trip-events__list`);
+
+        sortedEvents.forEach((event) => renderEvent(singleDateContainer(tripEventsLists, event), event));
+        return;
+      }
+
+      render(tripDaysList, new DatesComponent(), RenderPosition.BEFOREEND);
+      const tripEventsList = tripDaysList.querySelector(`.trip-events__list`);
+      renderEvents(tripEventsList, sortedEvents);
+
+      return;
+    });
   }
 }

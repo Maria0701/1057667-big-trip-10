@@ -29,3 +29,9 @@ export const getTimeDifference = (start, end) => {
   const timeDifferenseShow = `${getTimecomparisonFormat(differenceDays, `D`)} ${differenceDays > 0 && differenceHours === 0 ? `00H` : getTimecomparisonFormat(differenceHours, `H`)} ${ differenceMinutes !== 0 ? getTimecomparisonFormat(differenceMinutes, `M`) : `00M`}`;
   return timeDifferenseShow;
 };
+
+export const getDateWithoutMinutes = (date) => {
+  let clearDate = new Date(date);
+  clearDate = clearDate.setHours(0, 0, 0, 0);
+  return clearDate;
+};
