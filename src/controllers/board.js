@@ -2,49 +2,14 @@ import SortingComponent, {SortType} from '../components/sorting.js';
 import TotalPriceComponent from '../components/trip-info-cost.js';
 import EventsListComponent from '../components/list.js';
 import DatesComponent from '../components/day-card.js';
-import EventComponent from '../components/event-item.js';
-import ItemEditComponent from '../components/event-item-edit.js';
 import TripInfoElement from '../components/trip-info.js';
 import NoEventsComponent from '../components/no-events.js';
 import {createArrayDates} from '../components/event-item.js';
 import {createArrayCities} from '../components/event-item.js';
 import {createArrayPrices} from '../components/event-item.js';
-import {getDateWithoutMinutes} from '../utils/common.js';
-import {RenderPosition, render, replace} from '../utils/render.js';
-
-
-const renderEvent = (place, event) => {
-  const onEscKeyDown = (evt) => {
-    const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
-    if (isEscKey) {
-      replaceEditToEvent();
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    }
-  };
-
-  const eventComponent = new EventComponent(event);
-  const eventEditComponent = new ItemEditComponent(event);
-
-  const replaceEventToEdit = () => {
-    replace(eventEditComponent, eventComponent);
-  };
-
-  const replaceEditToEvent = () => {
-    replace(eventComponent, eventEditComponent);
-  };
-
-  eventComponent.setEditButtonEventHandler(() => {
-    replaceEventToEdit();
-    document.addEventListener(`keydown`, onEscKeyDown);
-  });
-
-  eventEditComponent.setSaveButtonHandler((evt) => {
-    evt.preventDefault();
-    replaceEditToEvent();
-  });
-  eventEditComponent.setRollUpHandler(replaceEditToEvent);
-  render(place, eventComponent, RenderPosition.BEFOREEND);
-};
+import {getDateWithoutMinutes, getTimeIso} from '../utils/common.js';
+import {RenderPosition, render} from '../utils/render.js';
+import TravelPoint from './point.js';
 
 const singleDates = (evts) => {
   const setOfSingleDates = new Set();
@@ -63,15 +28,26 @@ const getSingleDatesArray = (events) => {
 const singleDateContainer = (list, event) => {
   let singleDayContainer;
   list.forEach((it) => {
-    if (it.id === new Date(getDateWithoutMinutes(event.startDate)).toISOString()) {
+    const dateIterator = getTimeIso(event.startDate);
+    if (it.id === dateIterator) {
       singleDayContainer = it;
     }
   });
   return singleDayContainer;
 };
 
-const renderEvents = (dayContainer, events) => {
-  events.forEach((event) => renderEvent(dayContainer, event));
+const renderEvents = (dayContainer, tripEventsLists, events, onDataChange, onViewChange) => {
+  events.map((event) => {
+    let container;
+    if (Array.from(tripEventsLists).length > 0) {
+      container = singleDateContainer(tripEventsLists, event);
+    } else {
+      container = tripEventsLists;
+    }
+    const travelPoint = new TravelPoint(container, onDataChange, onViewChange);
+    travelPoint.render(event);
+    return travelPoint;
+  });
 };
 
 const renderSingleDatesContainers = (place, array) => {
@@ -82,21 +58,26 @@ const renderSingleDatesContainers = (place, array) => {
 export default class BoardController {
   constructor(container, events) {
     this._container = container;
-    this._events = events;
+    this._events = [];
     this._noEventsComponent = new NoEventsComponent();
     this._totalPriceComponent = new TotalPriceComponent(createArrayPrices(events));
     this._tripInfoComponent = new TripInfoElement(createArrayCities(events), createArrayDates(events));
     this._sortingComponent = new SortingComponent();
     this._eventListComponent = new EventsListComponent();
+    this._onViewChange = this._onViewChange.bind(this);
+    this._onDataChange = this._onDataChange.bind(this);
+    this._onSortChange = this._onSortChange.bind(this);
+    this._sortingComponent.sortTypeChangeHandler(this._onSortChange);
   }
 
-  render() {
+  render(travelEvents) {
+    this._travelEvents = travelEvents;
     const container = this._container;
     const siteMainElement = document.querySelector(`.page-body`);
     const siteHeaderElement = siteMainElement.querySelector(`.page-header`);
     const mainTripInfoElement = siteHeaderElement.querySelector(`.trip-main__trip-info`);
 
-    if (this._events.length === 0) {
+    if (this._travelEvents.length === 0) {
       render(container, this._noEventsComponent, RenderPosition.BEFOREEND);
       render(mainTripInfoElement, this._totalPriceComponent, RenderPosition.BEFOREEND);
       return;
@@ -107,52 +88,66 @@ export default class BoardController {
     render(mainTripInfoElement, this._totalPriceComponent, RenderPosition.BEFOREEND);
 
     render(container, this._sortingComponent, RenderPosition.BEFOREEND);
+    render(container, this._eventListComponent, RenderPosition.BEFOREEND);
+    const eventListComponent = this._eventListComponent.getElement();
 
-    const eventListComponent = this._eventListComponent;
-    render(container, eventListComponent, RenderPosition.BEFOREEND);
-    const tripDaysList = container.querySelector(`.trip-days`);
+    renderSingleDatesContainers(eventListComponent, getSingleDatesArray(this._travelEvents));
+    const tripEventsLists = eventListComponent.querySelectorAll(`.trip-events__list`);
+    renderEvents(eventListComponent, tripEventsLists, this._travelEvents.slice().sort((a, b) => a.startDate - b.startDate), this._onDataChange, this._onViewChange);
+  }
 
-    renderSingleDatesContainers(tripDaysList, getSingleDatesArray(this._events));
-
-    let tripEventsLists = tripDaysList.querySelectorAll(`.trip-events__list`);
-
-    this._events.slice()
-      .sort((a, b) => a.startDate - b.startDate)
-      .forEach((event) => renderEvent(singleDateContainer(tripEventsLists, event), event));
-
-    this._sortingComponent.sortTypeChangeHandler((sortType) => {
-      let sortedEvents = [];
-      switch (sortType) {
-        case SortType.TIME_DOWN:
-          sortedEvents = this._events.slice()
+  _onSortChange(sortType) {
+    let sortedEvents = [];
+    switch (sortType) {
+      case SortType.TIME_DOWN:
+        sortedEvents = this._travelEvents.slice()
             .sort((a, b) => ((b.endDate - b.startDate) - (a.endDate - a.startDate)));
-          break;
-        case SortType.PRICE_DOWN:
-          sortedEvents = this._events.slice()
+        break;
+      case SortType.PRICE_DOWN:
+        sortedEvents = this._travelEvents.slice()
             .sort((a, b) => b.travelPrice - a.travelPrice);
-          break;
-        case SortType.DEFAULT_EVENT:
-          sortedEvents = this._events.slice()
+        break;
+      case SortType.DEFAULT_EVENT:
+        sortedEvents = this._travelEvents.slice()
             .sort((a, b) => a.startDate - b.startDate);
-          break;
-      }
+        break;
+    }
 
-      tripDaysList.innerHTML = ``;
+    const eventListComponent = this._eventListComponent.getElement();
+    eventListComponent.innerHTML = ``;
 
-      if (sortType === SortType.DEFAULT_EVENT) {
-        renderSingleDatesContainers(tripDaysList, getSingleDatesArray(sortedEvents));
+    if (sortType === SortType.DEFAULT_EVENT) {
 
-        tripEventsLists = tripDaysList.querySelectorAll(`.trip-events__list`);
+      renderSingleDatesContainers(eventListComponent, getSingleDatesArray(sortedEvents));
 
-        sortedEvents.forEach((event) => renderEvent(singleDateContainer(tripEventsLists, event), event));
-        return;
-      }
+      const tripEventsLists = eventListComponent.querySelectorAll(`.trip-events__list`);
 
-      render(tripDaysList, new DatesComponent(), RenderPosition.BEFOREEND);
-      const tripEventsList = tripDaysList.querySelector(`.trip-events__list`);
-      renderEvents(tripEventsList, sortedEvents);
+      renderEvents(eventListComponent, tripEventsLists, this._travelEvents.slice().sort((a, b) => a.startDate - b.startDate), this._onDataChange, this._onViewChange);
+    }
 
+    render(eventListComponent, new DatesComponent(), RenderPosition.BEFOREEND);
+    const tripEventsList = eventListComponent.querySelector(`.trip-events__list`);
+    renderEvents(eventListComponent, tripEventsList, sortedEvents, this._onDataChange, this._onViewChange);
+    return;
+  }
+
+  _onViewChange() {
+    this._travelEvents.forEach((it) => it.setDefaultView());
+  }
+
+  _onDataChange(eventsController, oldData, newData) {
+    const index = this._travelEvents.findIndex((it) => it === oldData);
+
+    if (index === -1) {
       return;
-    });
+    }
+
+    this._travelEvents = [].concat(this._travelEvents.slice(0, index), newData, this._travelEvents.slice(index + 1));
+
+    eventsController.render(this._travelEvents[index]);
+  }
+
+  _onViewChange() {
+    this._travelEvents.forEach((it) => it.setDefaultView);
   }
 }

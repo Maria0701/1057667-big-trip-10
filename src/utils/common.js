@@ -1,4 +1,5 @@
 import {MILISECONDS} from '../const.js';
+import moment from 'moment';
 
 
 const castTimeFormat = (value) => {
@@ -6,7 +7,7 @@ const castTimeFormat = (value) => {
 };
 
 export const getEventTime = (date) => {
-  return `${castTimeFormat(date.getHours())}:${castTimeFormat(date.getMinutes())}`;
+  return moment(date).format(`h:mm`);
 };
 
 const getTimecomparisonFormat = (compared, remark) => {
@@ -14,11 +15,15 @@ const getTimecomparisonFormat = (compared, remark) => {
 };
 
 export const getTimeIso = (time) => {
-  return `${time.getFullYear()}-${castTimeFormat(time.getMonth())}-${castTimeFormat(time.getDate())}`;
+  return moment(time).format(`YYYY-MM-DD`);
+};
+
+export const getTimeIsoFull = (time) => {
+  return moment(time).format();
 };
 
 export const getDateFormatEditor = (date) => {
-  return `${castTimeFormat(date.getDate())}/${castTimeFormat(date.getMonth())}/${date.getFullYear()} ${castTimeFormat(date.getHours()) }:${castTimeFormat(date.getMinutes())}`;
+  return moment(date).format(`DD/MM/YYYY h:mm`);
 };
 
 export const getTimeDifference = (start, end) => {
