@@ -74,7 +74,7 @@ export const getRandomEndTime = (date) => {
   return randomEndDate;
 };
 
-export const tripItemDescription = (description) => {
+const tripItemDescription = (description) => {
   return description
     .split(`.`)
     .filter(() => Math.random() > 0.5)
@@ -93,12 +93,16 @@ const generateTravelItem = () => {
   return {
     startDate,
     endDate,
-    travelCity: getRandomArrayItem(TRAVEL_CITIES),
+    destination:
+    {
+      travelCity: getRandomArrayItem(TRAVEL_CITIES),
+      description: tripItemDescription(TRIP_DESCRIPTION),
+      photos: getPhotoArray(SIGHTS_PHOTO),
+    },
     travelPoints: getRandomArrayItem([...TRAVEL_TRANSPORT, ...TRAVEL_ACTIVITY]),
-    description: tripItemDescription(TRIP_DESCRIPTION),
     travelPrice: getRandomItegerNumber(10, 1000),
     travelAddons: travelAddons(generateTravelAddons(TRAVEL_ADDONS)),
-    photos: getPhotoArray(SIGHTS_PHOTO)
+    isFavorite: Math.random() > 0.5,
   };
 };
 

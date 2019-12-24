@@ -1,9 +1,9 @@
-import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, TRAVEL_CITIES, TRAVEL_ADDONS, TRIP_DESCRIPTION} from '../const.js';
+import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, TRAVEL_CITIES, TRAVEL_ADDONS} from '../const.js';
 import {getDateFormatEditor} from '../utils/common.js';
-import AbstractComponent from './abstract-component.js';
-import {tripItemDescription, getPhotoArray, SIGHTS_PHOTO} from '../mocks/travel-points';
+import AbstractSmartComponent from './abstract-smart-component.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+
 
 const createEventsChooserMurkup = (choosers, currentChooser) => {
   return choosers
@@ -52,8 +52,8 @@ const createPhotoTemplate = (photos) => {
   }).join(`\n`);
 };
 
-const createEventEditTemplate = (event) => {
-  const {startDate, endDate, travelCity, travelPoints, travelPrice} = event;
+const createEventEditTemplate = (travelEvent) => {
+  const {startDate, endDate, travelPoints, destination, travelPrice, isFavorite} = travelEvent;
   return (
     `<li class="trip-events__item">
       <form class="event  event--edit" action="#" method="post">
@@ -68,22 +68,22 @@ const createEventEditTemplate = (event) => {
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Transfer</legend>
-                ${createEventsChooserMurkup(TRAVEL_TRANSPORT)}
+                ${createEventsChooserMurkup(TRAVEL_TRANSPORT, travelPoints)}
               </fieldset>
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Activity</legend>
-                ${createEventsChooserMurkup(TRAVEL_ACTIVITY)}
+                ${createEventsChooserMurkup(TRAVEL_ACTIVITY, travelPoints)}
               </fieldset>
             </div>
           </div>
 
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">
-              Sightseeing at
+              ${travelPoints} at
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${travelCity}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.travelCity}" list="destination-list-1">
             <datalist id="destination-list-1">
-              ${createCityOptions(TRAVEL_CITIES)}
+              ${createCityOptions(TRAVEL_CITIES, destination.travelCity)}
             </datalist>
           </div>
 
@@ -110,7 +110,7 @@ const createEventEditTemplate = (event) => {
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
           <button class="event__reset-btn" type="reset">Delete</button>
 
-          <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" checked>
+          <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
           <label class="event__favorite-btn" for="event-favorite-1">
             <span class="visually-hidden">Add to favorite</span>
             <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -132,11 +132,11 @@ const createEventEditTemplate = (event) => {
 
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${tripItemDescription(TRIP_DESCRIPTION)}</p>
+            <p class="event__destination-description">${destination.description}</p>
 
             <div class="event__photos-container">
               <div class="event__photos-tape">
-              ${createPhotoTemplate(getPhotoArray(SIGHTS_PHOTO))}
+              ${createPhotoTemplate(destination.photos)}
               </div>
             </div>
           </section>
@@ -146,23 +146,111 @@ const createEventEditTemplate = (event) => {
   );
 };
 
-export default class ItemEdit extends AbstractComponent {
-  constructor(event) {
+export default class ItemEdit extends AbstractSmartComponent {
+  constructor(travelEvent) {
     super();
-    this._event = event;
+    this._event = travelEvent;
+    this._flatpickr = null;
+    this._saveButtonHandler = null;
+    this._favouriteButtonHandler = null;
+    this._rollUpHandler = null;
+    this._offers = Object.assign({}, this._event.travelAddons);
+    this._travelPoints = this._event.travelPoints;
+    this._isFavorite = this._event.isFavorite;
+    this._eventDestination = this._event.destination.travelCity;
+    this._placeDescription = this._event.destination.description;
+    this._placePhotos = this._event.destination.photos;
+    this._placePrice = this._event.travelPrice;
+
+    this._applyFlatpickr();
+    this._subscribeOnEvents();
   }
 
   getTemplate() {
-    return createEventEditTemplate(this._event);
+    return createEventEditTemplate({
+      isFavorite: this._isFavorite,
+      travelPoints: this._travelPoints,
+      destination: {
+        travelCity: this._eventDestination,
+        description: this._placeDescription,
+        photos: this._placePhotos
+      },
+      travelPrice: this._placePrice,
+    });
+  }
+
+  recoveryListeners() {
+    this.setSaveButtonHandler(this._saveButtonHandler);
+    this.setFavouriteButtonHandler(this._favouriteButtonHandler);
+    this.setRollUpHandler(this._rollUpHandler);
+    this._subscribeOnEvents();
+  }
+
+  rerender() {
+    super.rerender();
+
+    this._applyFlatpickr();
   }
 
   setSaveButtonHandler(handler) {
-    this.getElement().querySelector(`.event__save-btn`)
-      .addEventListener(`click`, handler);
+    this.getElement().querySelector(`form`)
+      .addEventListener(`submit`, handler);
+
+    this._saveButtonHandler = handler;
+  }
+
+  setFavouriteButtonHandler(handler) {
+    this.getElement().querySelector(`.event__favorite-checkbox`)
+    .addEventListener(`click`, handler);
+    this._favouriteButtonHandler = handler;
   }
 
   setRollUpHandler(handler) {
     this.getElement().querySelector(`.event__rollup-btn`)
       .addEventListener(`click`, handler);
+    this._rollUpHandler = handler;
+  }
+
+  _applyFlatpickr() {
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpick = null;
+    }
+
+    const dateTimes = this.getElement().querySelectorAll(`.event__input--time`);
+    dateTimes.forEach((dateTime) => {
+      this._flatpickr = flatpickr(dateTime, {
+        altFormat: true,
+        dateFormat: `d/m/Y h:m`,
+        allowInput: true,
+        enableTime: true,
+        defaultDate: this._event.value,
+      });
+    });
+  }
+
+  _subscribeOnEvents() {
+    const element = this.getElement();
+
+    const offers = element.querySelector(`.event__available-offers`);
+    offers.addEventListener(`change`, (evt) => {
+      this._offers[evt.target.value] = evt.target.checked;
+    //  this.rerender();
+    });
+
+    const eventType = element.querySelector(`.event__type-group`);
+    eventType.addEventListener(`change`, (evt) => {
+      this._travelPoints = evt.target.value;
+      this.rerender();
+    });
+
+    const eventDestination = element.querySelector(`.event__input--destination`);
+    eventDestination.addEventListener(`change`, () => {
+      this._eventDestination = eventDestination.value;
+      this._placeDescription = this._eventDestination.description;
+      this._placePhotos = this._eventDestination.photos;
+      this.rerender();
+    });
+
   }
 }

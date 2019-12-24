@@ -20,4 +20,4 @@ const tripBoard = siteMainElement.querySelector(`.trip-events`);
 
 const bardController = new TripController(tripBoard, events);
 
-bardController.render();
+bardController.render(events);

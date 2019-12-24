@@ -1,10 +1,10 @@
-import {getTimeIso} from '../utils/common.js';
+import {getTimeIso, getTimeIsoFull} from '../utils/common.js';
 import AbstractComponent from './abstract-component.js';
-import {MONTHS} from '../const.js';
+import moment from 'moment';
 
 const createDayCardTemplate = (date, order) => {
   const eventDate = new Date(date);
-  const tripDate = `${MONTHS[eventDate.getMonth()]} ${eventDate.getDate()}`;
+  const tripDate = moment(date).format(`MMM DD`);
   if (!date && !order) {
     return (
       `<li class="trip-days__item  day">
@@ -18,10 +18,10 @@ const createDayCardTemplate = (date, order) => {
       `<li class="trip-days__item  day">
           <div class="day__info">
             <span class="day__counter">${order + 1}</span>
-            <time class="day__date" datetime="${getTimeIso(eventDate)}"> ${tripDate}
+            <time class="day__date" datetime="${getTimeIsoFull(eventDate)}"> ${tripDate}
             </time>
           </div>
-        <ul class="trip-events__list" id="${eventDate.toISOString()}">
+        <ul class="trip-events__list" id="${getTimeIso(eventDate)}">
         </ul>
       </li>`
     );
