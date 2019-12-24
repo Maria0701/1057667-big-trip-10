@@ -2,6 +2,7 @@ import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, TRAVEL_CITIES, TRAVEL_ADDONS, TRIP_DE
 import {getDateFormatEditor} from '../utils/common.js';
 import AbstractComponent from './abstract-component.js';
 import {tripItemDescription, getPhotoArray, SIGHTS_PHOTO} from '../mocks/travel-points';
+import 'flatpickr/dist/flatpickr.min.css';
 
 const createEventsChooserMurkup = (choosers, currentChooser) => {
   return choosers
