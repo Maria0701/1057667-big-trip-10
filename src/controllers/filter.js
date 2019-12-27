@@ -1,11 +1,10 @@
 import FilterComponent from '../components/filter.js';
 import {RenderPosition, render, replace} from '../utils/render.js';
 import {FilterType} from '../const.js';
-import {getPointsByFilter} from '../utils/filter.js';
 
 export default class FilterController {
   constructor(container, pointsModel) {
-    this._caontainer = container;
+    this._container = container;
     this._pointsModel = pointsModel;
     this._activeFiterType = FilterType.EVERYTHING;
     this._filterComponent = null;
@@ -35,5 +34,9 @@ export default class FilterController {
   _onFilterChange(filterType) {
     this._pointsModel.setFilter(filterType);
     this._activeFiterType = filterType;
+  }
+
+  _onDataChange() {
+    this.render();
   }
 }

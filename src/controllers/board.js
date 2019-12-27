@@ -35,8 +35,8 @@ const singleDateContainer = (list, event) => {
   return singleDayContainer;
 };
 
-const renderEvents = (dayContainer, tripEventsLists, events, onDataChange, onViewChange) => {
-  return events.map((travelEvent) => {
+const renderEvents = (dayContainer, tripEventsLists, travelEvents, onDataChange, onViewChange) => {
+  return travelEvents.map((travelEvent) => {
     let container;
     if (Array.from(tripEventsLists).length > 0) {
       container = singleDateContainer(tripEventsLists, travelEvent);
@@ -92,11 +92,30 @@ export default class BoardController {
 
     render(container, this._sortingComponent, RenderPosition.BEFOREEND);
     render(container, this._eventListComponent, RenderPosition.BEFOREEND);
-    const eventListComponent = this._eventListComponent.getElement();
 
-    renderSingleDatesContainers(eventListComponent, getSingleDatesArray(points));
-    const tripEventsLists = eventListComponent.querySelectorAll(`.trip-events__list`);
-    renderEvents(eventListComponent, tripEventsLists, points.slice().sort((a, b) => a.startDate - b.startDate), this._onDataChange, this._onViewChange);
+    this._renderPoints(points.slice().sort((a, b) => a.startDate - b.startDate), SortType.DEFAULT_EVENT);
+  }
+
+  _removePoints() {
+    const eventListComponent = this._eventListComponent.getElement();
+    eventListComponent.innerHTML = ``;
+    this._eventsControllers = [];
+  }
+
+  _renderPoints(points, sortType = SortType.DEFAULT_EVENT) {
+    const eventListComponent = this._eventListComponent.getElement();
+    let tripEventsLists;
+    if (sortType === SortType.DEFAULT_EVENT) {
+      renderSingleDatesContainers(eventListComponent, getSingleDatesArray(points));
+      tripEventsLists = eventListComponent.querySelectorAll(`.trip-events__list`);
+    } else {
+      render(eventListComponent, new DatesComponent(), RenderPosition.BEFOREEND);
+      tripEventsLists = eventListComponent.querySelector(`.trip-events__list`);
+    }
+
+    const newEvents = renderEvents(eventListComponent, tripEventsLists, points, this._onDataChange, this._onViewChange);
+
+    this._eventsControllers = this._eventsControllers.concat(newEvents);
   }
 
   _onSortChange(sortType) {
@@ -121,17 +140,11 @@ export default class BoardController {
     eventListComponent.innerHTML = ``;
 
     if (sortType === SortType.DEFAULT_EVENT) {
-
-      renderSingleDatesContainers(eventListComponent, getSingleDatesArray(sortedEvents));
-
-      const tripEventsLists = eventListComponent.querySelectorAll(`.trip-events__list`);
-
-      renderEvents(eventListComponent, tripEventsLists, points.slice().sort((a, b) => a.startDate - b.startDate), this._onDataChange, this._onViewChange);
+      this._renderPoints(points.slice().sort((a, b) => a.startDate - b.startDate), sortType);
+      return;
     }
 
-    render(eventListComponent, new DatesComponent(), RenderPosition.BEFOREEND);
-    const tripEventsList = eventListComponent.querySelector(`.trip-events__list`);
-    this._eventsControllers = [].concat(renderEvents(eventListComponent, tripEventsList, sortedEvents, this._onDataChange, this._onViewChange));
+    this._renderPoints(sortedEvents, sortType);
     return;
   }
 
@@ -149,11 +162,6 @@ export default class BoardController {
 
   _onFilterChange() {
     this._removePoints();
-    const points = this._pointsModel.getPoints();
-    const eventListComponent = this._eventListComponent.getElement();
-    eventListComponent.innerHTML = ``;
-    renderSingleDatesContainers(eventListComponent, getSingleDatesArray(points));
-    const tripEventsLists = eventListComponent.querySelectorAll(`.trip-events__list`);
-    renderEvents(eventListComponent, tripEventsLists, points.slice().sort((a, b) => a.startDate - b.startDate), this._onDataChange, this._onViewChange);
+    this._renderPoints(this._pointsModel.getPoints().slice());
   }
 }

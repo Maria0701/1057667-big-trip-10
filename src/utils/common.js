@@ -30,7 +30,6 @@ export const getTimeDifference = (start, end) => {
   const differenceMinutes = Math.floor(((end - start) / (MILISECONDS.MILISECONDS_IN_NINUTE)) % 60);
   const differenceHours = Math.floor(((end - start) / (MILISECONDS.MILISECONDS_IN_HOURS)) % 24);
   const differenceDays = Math.floor(((end - start) / (MILISECONDS.MILISECONDS_IN_DAYS)));
-console.log(moment.duration(end - start, `minutes`));
   const timeDifferenseShow = `${getTimecomparisonFormat(differenceDays, `D`)} ${differenceDays > 0 && differenceHours === 0 ? `00H` : getTimecomparisonFormat(differenceHours, `H`)} ${ differenceMinutes !== 0 ? getTimecomparisonFormat(differenceMinutes, `M`) : `00M`}`;
   return timeDifferenseShow;
 };

@@ -1,11 +1,11 @@
 import {FilterType} from '../const.js';
 
 export const getPastPoints = (points, date) => {
-  return points.filter((point) => point.endDate > date);
+  return points.filter((point) => point.endDate < date);
 };
 
 export const getFuturePoints = (points, date) => {
-  return points.filter((point) => point.startDate < date);
+  return points.filter((point) => point.startDate > date);
 };
 
 export const getPointsByFilter = (points, filterType) => {
