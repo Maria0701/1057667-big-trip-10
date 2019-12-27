@@ -1,8 +1,12 @@
 import {getEventTime, getTimeDifference, getTimeIso} from '../utils/common.js';
 import AbstractComponent from './abstract-component.js';
 
-export const createArrayDates = (array) => {
+export const createArrayStartDates = (array) => {
   return array.map((it) => it.startDate);
+};
+
+export const createArrayEndDates = (array) => {
+  return array.map((it) => it.endDate);
 };
 
 export const createArrayCities = (array) => {
@@ -28,7 +32,7 @@ const generateTravelAddonMarkup = (addons) => {
 };
 
 const createEventItemTemplate = (event) => {
-  const {startDate, endDate, travelCity, travelPoints, travelPrice, travelAddons} = event;
+  const {startDate, endDate, destination, travelPoints, travelPrice, travelAddons} = event;
   const getTime = (fullDate) => {
     return `${fullDate.getHours()}:${fullDate.getMinutes()}`;
   };
@@ -39,7 +43,7 @@ const createEventItemTemplate = (event) => {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${travelPoints}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${travelPoints} ${travelCity}</h3>
+        <h3 class="event__title">${travelPoints} ${destination.travelCity}</h3>
 
         <div class="event__schedule">
           <p class="event__time">

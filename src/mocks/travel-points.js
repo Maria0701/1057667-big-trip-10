@@ -91,6 +91,7 @@ const generateTravelItem = () => {
   const startDate = getRandomDate();
   const endDate = getRandomEndTime(startDate);
   return {
+    id: String(new Date() + Math.random),
     startDate,
     endDate,
     destination:

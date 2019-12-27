@@ -1,12 +1,12 @@
-import {MONTHS} from '../const.js';
 import AbstractComponent from './abstract-component.js';
+import moment from 'moment';
 
-const createTripInfo = (cityArray, datesArray) => {
+const createTripInfo = (cityArray, datesStartArray, datesEndArray) => {
   const getDatePeriod = () => {
-    const newArray = datesArray.slice().sort((a, b) => a - b);
-    const firstDate = MONTHS[newArray[0].getMonth()] + ` ` + newArray[0].getDate();
-    const lastDate = (
-      newArray[0].getMonth() === newArray[newArray.length - 1].getMonth() ? newArray[newArray.length - 1].getDate() : MONTHS[newArray[length - 1].getMonth()] + ` ` + newArray[length - 1].getDate()
+    const dateStartArray = datesStartArray.slice().sort((a, b) => a - b);
+    const dateEndArray = datesEndArray.slice().sort((a, b) => a - b);
+    const firstDate = moment(dateStartArray[0]).format(`MMM DD`);
+    const lastDate = (moment(dateStartArray[0]).isSame(dateEndArray[dateEndArray.length - 1], `month`) ? moment(dateEndArray[dateEndArray.length - 1]).format(`DD`) : moment(dateEndArray[dateEndArray.length - 1]).format(`MMM DD`)
     );
     return `${firstDate} - ${lastDate}`;
   };
@@ -21,13 +21,14 @@ const createTripInfo = (cityArray, datesArray) => {
 };
 
 export default class TripInfo extends AbstractComponent {
-  constructor(cities, dates) {
+  constructor(cities, datesStart, datesEnd) {
     super();
     this._cities = cities;
-    this._dates = dates;
+    this._datesStart = datesStart;
+    this._datesEnd = datesEnd;
   }
 
   getTemplate() {
-    return createTripInfo(this._cities, this._dates);
+    return createTripInfo(this._cities, this._datesStart, this._datesEnd);
   }
 }
