@@ -102,6 +102,11 @@ export default class BoardController {
     this._eventsControllers = [];
   }
 
+  _updatePoints() {
+    this._removePoints();
+    this._renderPoints(this._pointsModel.getPoints().slice());
+  }
+
   _renderPoints(points, sortType = SortType.DEFAULT_EVENT) {
     const eventListComponent = this._eventListComponent.getElement();
     let tripEventsLists;
@@ -154,9 +159,13 @@ export default class BoardController {
 
   _onDataChange(eventsController, oldData, newData) {
     const isSuccess = this._pointsModel.updatePoint(oldData.id, newData);
-
-    if (isSuccess) {
-      eventsController.render(newData);
+    if (newData === null) {
+      this._pointsModel.removePoint(oldData.id);
+      this._updatePoints();
+    } else {
+      if (isSuccess) {
+        eventsController.render(newData);
+      }
     }
   }
 

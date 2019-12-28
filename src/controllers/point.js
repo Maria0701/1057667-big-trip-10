@@ -1,8 +1,9 @@
 import EventComponent from '../components/event-item.js';
 import ItemEditComponent from '../components/event-item-edit.js';
-import {RenderPosition, render, replace} from '../utils/render.js';
+import {RenderPosition, render, replace, remove} from '../utils/render.js';
 
 const Mode = {
+  ADDING: `adding`,
   DEFAULT: `default`,
   EDIT: `edit`
 };
@@ -25,7 +26,6 @@ export default class TravelPoint {
 
     this._pointComponent = new EventComponent(travelEvent);
     this._pointEditComponent = new ItemEditComponent(travelEvent);
-
     this._pointComponent.setEditButtonEventHandler(() => {
       this._replaceEventToEdit();
       document.addEventListener(`keydown`, this._onEscKeyDown);
@@ -46,6 +46,8 @@ export default class TravelPoint {
       }));
     });
 
+    this._pointEditComponent.setDeleteButtonClickHandler(() => this._onDataChange(this, travelEvent, null));
+
     if (oldEvent && oldEditEvent) {
       replace(this._pointComponent, oldEvent);
       replace(this._pointEditComponent, oldEditEvent);
@@ -58,6 +60,12 @@ export default class TravelPoint {
     if (this._mode !== Mode.DEFAULT) {
       this._replaceEditToEvent();
     }
+  }
+
+  destroy() {
+    remove(this._pointComponent);
+    remove(this._pointEditComponent);
+    document.removeEventListener(`keydown`, this._onEscKeyDown);
   }
 
   _replaceEventToEdit() {

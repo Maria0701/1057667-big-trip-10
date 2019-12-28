@@ -32,7 +32,7 @@ const createOfferSelector = (selectors, selectorChosen) => {
   .map((selector) => {
     return (
       `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${selector.remark}-1" type="checkbox" name="event-offer-${selector.remark}" ${selectorChosen === selector ? `checked` : ``}>
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${selector.remark}-1" type="checkbox" name="event-offer-${selector.remark}" ${selectorChosen.includes(selector) ? `checked` : ``}>
       <label class="event__offer-label" for="event-offer-${selector.remark}-1">
         <span class="event__offer-title">${selector.name}</span>
         &plus;
@@ -53,7 +53,7 @@ const createPhotoTemplate = (photos) => {
 };
 
 const createEventEditTemplate = (travelEvent) => {
-  const {startDate, endDate, travelPoints, destination, travelPrice, isFavorite} = travelEvent;
+  const {startDate, endDate, travelPoints, destination, travelPrice, isFavorite, travelAddons} = travelEvent;
   return (
     `<li class="trip-events__item">
       <form class="event  event--edit" action="#" method="post">
@@ -72,7 +72,7 @@ const createEventEditTemplate = (travelEvent) => {
               </fieldset>
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Activity</legend>
-                ${createEventsChooserMurkup(TRAVEL_ACTIVITY, travelPoints)}
+                ${createEventsChooserMurkup(TRAVEL_ACTIVITY, travelAddons)}
               </fieldset>
             </div>
           </div>
@@ -126,7 +126,7 @@ const createEventEditTemplate = (travelEvent) => {
           <section class="event__section  event__section--offers">
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
             <div class="event__available-offers">
-              ${createOfferSelector(TRAVEL_ADDONS)}
+              ${createOfferSelector(TRAVEL_ADDONS, travelAddons)}
             </div>
           </section>
 
@@ -146,6 +146,13 @@ const createEventEditTemplate = (travelEvent) => {
   );
 };
 
+const parseFormData = (formData) => {
+  const startDate = formData.get(`event-start-time`);
+  const endDate = formData.get(`event-end-time`);
+  const destination = formData.get(`event-destination`);
+  const travelPoints = formData.get(``);
+};
+
 export default class ItemEdit extends AbstractSmartComponent {
   constructor(travelEvent) {
     super();
@@ -154,13 +161,14 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._saveButtonHandler = null;
     this._favouriteButtonHandler = null;
     this._rollUpHandler = null;
-    this._offers = Object.assign({}, this._event.travelAddons);
-    this._travelPoints = this._event.travelPoints;
-    this._isFavorite = this._event.isFavorite;
-    this._eventDestination = this._event.destination.travelCity;
-    this._placeDescription = this._event.destination.description;
-    this._placePhotos = this._event.destination.photos;
-    this._placePrice = this._event.travelPrice;
+    this._deleteButtonHandler = null;
+    this._offers = travelEvent.travelAddons;
+    this._travelPoints = travelEvent.travelPoints;
+    this._isFavorite = travelEvent.isFavorite;
+    this._eventDestination = travelEvent.destination.travelCity;
+    this._placeDescription = travelEvent.destination.description;
+    this._placePhotos = travelEvent.destination.photos;
+    this._placePrice = travelEvent.travelPrice;
 
     this._applyFlatpickr();
     this._subscribeOnEvents();
@@ -175,14 +183,25 @@ export default class ItemEdit extends AbstractSmartComponent {
         description: this._placeDescription,
         photos: this._placePhotos
       },
+      travelAddons: this._offers,
       travelPrice: this._placePrice,
     });
+  }
+
+  removeElement() {
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
+    }
+
+    super.removeElement();
   }
 
   recoveryListeners() {
     this.setSaveButtonHandler(this._saveButtonHandler);
     this.setFavouriteButtonHandler(this._favouriteButtonHandler);
     this.setRollUpHandler(this._rollUpHandler);
+    this.setDeleteButtonClickHandler(this._deleteButtonHandler);
     this._subscribeOnEvents();
   }
 
@@ -195,8 +214,13 @@ export default class ItemEdit extends AbstractSmartComponent {
   setSaveButtonHandler(handler) {
     this.getElement().querySelector(`form`)
       .addEventListener(`submit`, handler);
-
     this._saveButtonHandler = handler;
+  }
+
+  setDeleteButtonClickHandler(handler) {
+    this.getElement().querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, handler);
+    this._deleteButtonHandler = handler;
   }
 
   setFavouriteButtonHandler(handler) {

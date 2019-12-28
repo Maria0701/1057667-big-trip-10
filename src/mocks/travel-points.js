@@ -1,4 +1,4 @@
-import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, TRIP_DESCRIPTION} from '../const.js';
+import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, TRIP_DESCRIPTION, TRAVEL_ADDONS} from '../const.js';
 
 const TRAVEL_CITIES = [
   `Апатиты`,
@@ -13,23 +13,6 @@ const TRAVEL_CITIES = [
   `Балаково`
 ];
 
-const TRAVEL_ADDONS = [
-  `Add luggage +10 €`,
-  `Switch to comfort class +150 €`,
-  `Add meal +2 €`,
-  `Choose seats +9 €`
-];
-
-const generateTravelAddons = (array) => {
-  return array.map((it) => {
-    const singleAddon = it.split(` `);
-    return {
-      price: it.split(` `)[singleAddon.length - 2].replace(`+`, ``),
-      currency: it.split(` `)[singleAddon.length - 1],
-      name: it.split(` `, singleAddon.length - 2).join(` `)
-    };
-  });
-};
 
 export const SIGHTS_PHOTO = `http://picsum.photos/300/150?r=${Math.random()}`;
 
@@ -102,7 +85,7 @@ const generateTravelItem = () => {
     },
     travelPoints: getRandomArrayItem([...TRAVEL_TRANSPORT, ...TRAVEL_ACTIVITY]),
     travelPrice: getRandomItegerNumber(10, 1000),
-    travelAddons: travelAddons(generateTravelAddons(TRAVEL_ADDONS)),
+    travelAddons: travelAddons(TRAVEL_ADDONS),
     isFavorite: Math.random() > 0.5,
   };
 };
