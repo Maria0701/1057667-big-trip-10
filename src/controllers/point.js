@@ -8,6 +8,17 @@ const Mode = {
   EDIT: `edit`
 };
 
+
+export const emptyPoint = {
+  startDate: new Date(),
+  endDate: new Date(),
+  destination: ``,
+  travelPoints: ``,
+  travelPrice: ``,
+  travelAddons: [],
+  isFavorite: false,
+};
+
 export default class TravelPoint {
   constructor(container, onDataChange, onViewChange) {
     this._conatiner = container;

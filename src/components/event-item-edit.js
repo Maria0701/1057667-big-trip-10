@@ -1,4 +1,4 @@
-import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, TRAVEL_CITIES, TRAVEL_ADDONS} from '../const.js';
+import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, TRAVEL_CITIES, TRAVEL_ADDONS, TRAVEL_CITIES_WHOLE} from '../const.js';
 import {getDateFormatEditor} from '../utils/common.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
 import flatpickr from 'flatpickr';
@@ -53,7 +53,7 @@ const createPhotoTemplate = (photos) => {
 };
 
 const createEventEditTemplate = (travelEvent) => {
-  const {startDate, endDate, travelPoints, destination, travelPrice, isFavorite, travelAddons} = travelEvent;
+  const {startDate, endDate, travelPoints, destination, description, photos, travelPrice, isFavorite, travelAddons} = travelEvent;
   return (
     `<li class="trip-events__item">
       <form class="event  event--edit" action="#" method="post">
@@ -81,9 +81,9 @@ const createEventEditTemplate = (travelEvent) => {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${travelPoints} at
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.travelCity}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
             <datalist id="destination-list-1">
-              ${createCityOptions(TRAVEL_CITIES, destination.travelCity)}
+              ${createCityOptions(TRAVEL_CITIES, destination)}
             </datalist>
           </div>
 
@@ -132,11 +132,11 @@ const createEventEditTemplate = (travelEvent) => {
 
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${destination.description}</p>
+            <p class="event__destination-description">${description}</p>
 
             <div class="event__photos-container">
               <div class="event__photos-tape">
-              ${createPhotoTemplate(destination.photos)}
+              ${createPhotoTemplate(photos)}
               </div>
             </div>
           </section>
@@ -165,9 +165,9 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._offers = travelEvent.travelAddons;
     this._travelPoints = travelEvent.travelPoints;
     this._isFavorite = travelEvent.isFavorite;
-    this._eventDestination = travelEvent.destination.travelCity;
-    this._placeDescription = travelEvent.destination.description;
-    this._placePhotos = travelEvent.destination.photos;
+    this._eventDestination = travelEvent.destination;
+    this._placeDescription = null;
+    this._placePhotos = null;
     this._placePrice = travelEvent.travelPrice;
 
     this._applyFlatpickr();
@@ -175,14 +175,13 @@ export default class ItemEdit extends AbstractSmartComponent {
   }
 
   getTemplate() {
+    this._getPlaceDescription(TRAVEL_CITIES_WHOLE);
     return createEventEditTemplate({
       isFavorite: this._isFavorite,
       travelPoints: this._travelPoints,
-      destination: {
-        travelCity: this._eventDestination,
-        description: this._placeDescription,
-        photos: this._placePhotos
-      },
+      destination: this._eventDestination,
+      description: this._placeDescription,
+      photos: this._placePhotos,
       travelAddons: this._offers,
       travelPrice: this._placePrice,
     });
@@ -207,7 +206,6 @@ export default class ItemEdit extends AbstractSmartComponent {
 
   rerender() {
     super.rerender();
-
     this._applyFlatpickr();
   }
 
@@ -253,6 +251,16 @@ export default class ItemEdit extends AbstractSmartComponent {
     });
   }
 
+  _getPlaceDescription(travelCities) {
+    this._eventDestination = this._eventDestination;
+    travelCities.forEach((travelCity) => {
+      if (travelCity.travelCity === this._eventDestination) {
+        this._placeDescription = travelCity.description;
+        this._placePhotos = travelCity.photos;
+      }
+    });
+  }
+
   _subscribeOnEvents() {
     const element = this.getElement();
 
@@ -269,12 +277,17 @@ export default class ItemEdit extends AbstractSmartComponent {
     });
 
     const eventDestination = element.querySelector(`.event__input--destination`);
+    this._eventDestination = this._eventDestination;
+    TRAVEL_CITIES_WHOLE.forEach((travelCity) => {
+      if (travelCity.travelCity === this._eventDestination) {
+        this._placeDescription = travelCity.description;
+        this._placePhotos = travelCity.photos;
+      }
+    });
     eventDestination.addEventListener(`change`, () => {
       this._eventDestination = eventDestination.value;
-      this._placeDescription = this._eventDestination.description;
-      this._placePhotos = this._eventDestination.photos;
+      this._getPlaceDescription(TRAVEL_CITIES_WHOLE);
       this.rerender();
     });
-
   }
 }

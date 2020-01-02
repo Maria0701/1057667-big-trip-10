@@ -28,7 +28,7 @@ export const getPhotoArray = (photo) => {
   return newArray;
 };
 
-const getRandomArrayItem = (array) => {
+export const getRandomArrayItem = (array) => {
   const randomIndex = getRandomItegerNumber(0, array.length);
   return array[randomIndex];
 };
@@ -57,7 +57,7 @@ export const getRandomEndTime = (date) => {
   return randomEndDate;
 };
 
-const tripItemDescription = (description) => {
+export const tripItemDescription = (description) => {
   return description
     .split(`.`)
     .filter(() => Math.random() > 0.5)
@@ -77,12 +77,7 @@ const generateTravelItem = () => {
     id: String(new Date() + Math.random),
     startDate,
     endDate,
-    destination:
-    {
-      travelCity: getRandomArrayItem(TRAVEL_CITIES),
-      description: tripItemDescription(TRIP_DESCRIPTION),
-      photos: getPhotoArray(SIGHTS_PHOTO),
-    },
+    destination: getRandomArrayItem(TRAVEL_CITIES),
     travelPoints: getRandomArrayItem([...TRAVEL_TRANSPORT, ...TRAVEL_ACTIVITY]),
     travelPrice: getRandomItegerNumber(10, 1000),
     travelAddons: travelAddons(TRAVEL_ADDONS),
