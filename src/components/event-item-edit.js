@@ -279,7 +279,7 @@ export default class ItemEdit extends AbstractSmartComponent {
       this._flatpickr = flatpickr(dateTime, {
         allowInput: true,
         enableTime: true,
-        time_24hr: true,
+        // time_24hr: true,
         dateFormat: `d/m/Y H:m`,
         defaultDate: dateTime.value,
       });
