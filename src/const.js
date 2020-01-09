@@ -143,3 +143,8 @@ export const FilterType = {
   FUTURE: `future`,
   PAST: `past`,
 };
+
+export const Placeholder = {
+  TRANSPORT: `to`,
+  ACTION: `in`,
+};

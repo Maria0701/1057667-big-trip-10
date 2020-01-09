@@ -7,7 +7,7 @@ const castTimeFormat = (value) => {
 };
 
 export const getEventTime = (date) => {
-  return moment(date).format(`h:mm`);
+  return moment(date).format(`hh:mm`);
 };
 
 const getTimecomparisonFormat = (compared, remark) => {
@@ -23,7 +23,11 @@ export const getTimeIsoFull = (time) => {
 };
 
 export const getDateFormatEditor = (date) => {
-  return moment(date).format(`DD/MM/YYYY h:mm`);
+  return moment(date).format(`DD/MM/YYYY hh:mm`);
+};
+
+export const getToStringDateFormat = (date) => {
+  return moment(date, `DD/MM/YYYY hh:mm`).format(`YYYY-MM-DDThh:mm:ss`);
 };
 
 export const getTimeDifference = (start, end) => {

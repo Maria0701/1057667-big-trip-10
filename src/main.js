@@ -24,3 +24,7 @@ const tripBoard = siteMainElement.querySelector(`.trip-events`);
 
 const boardController = new TripController(tripBoard, events, points);
 boardController.render();
+const addButton = siteMainElement.querySelector(`.trip-main__event-add-btn`);
+addButton.addEventListener(`click`, () => {
+  boardController.createPoint();
+});

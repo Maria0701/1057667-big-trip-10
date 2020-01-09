@@ -1,19 +1,20 @@
 import EventComponent from '../components/event-item.js';
 import ItemEditComponent from '../components/event-item-edit.js';
 import {RenderPosition, render, replace, remove} from '../utils/render.js';
+import {TRAVEL_TRANSPORT} from '../const.js';
 
-const Mode = {
+export const Mode = {
   ADDING: `adding`,
   DEFAULT: `default`,
   EDIT: `edit`
 };
 
 
-export const emptyPoint = {
+export const EmptyPoint = {
   startDate: new Date(),
   endDate: new Date(),
   destination: ``,
-  travelPoints: ``,
+  travelPoints: TRAVEL_TRANSPORT[0],
   travelPrice: ``,
   travelAddons: [],
   isFavorite: false,
@@ -31,9 +32,10 @@ export default class TravelPoint {
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
-  render(travelEvent) {
+  render(travelEvent, mode) {
     const oldEvent = this._pointComponent;
     const oldEditEvent = this._pointEditComponent;
+    this._mode = mode;
 
     this._pointComponent = new EventComponent(travelEvent);
     this._pointEditComponent = new ItemEditComponent(travelEvent);
@@ -44,7 +46,8 @@ export default class TravelPoint {
 
     this._pointEditComponent.setSaveButtonHandler((evt) => {
       evt.preventDefault();
-      this._replaceEditToEvent();
+      const data = this._pointEditComponent.getData();
+      this._onDataChange(this, travelEvent, data);
     });
 
     this._pointEditComponent.setRollUpHandler(() => {
@@ -59,15 +62,30 @@ export default class TravelPoint {
 
     this._pointEditComponent.setDeleteButtonClickHandler(() => this._onDataChange(this, travelEvent, null));
 
-    if (oldEvent && oldEditEvent) {
-      replace(this._pointComponent, oldEvent);
-      replace(this._pointEditComponent, oldEditEvent);
-    } else {
-      render(this._conatiner, this._pointComponent, RenderPosition.BEFOREEND);
+    switch (mode) {
+      case Mode.DEFAULT:
+        if (oldEvent && oldEditEvent) {
+          replace(this._pointComponent, oldEvent);
+          replace(this._pointEditComponent, oldEditEvent);
+          this._replaceEditToEvent();
+        } else {
+          render(this._conatiner, this._pointComponent, RenderPosition.BEFOREEND);
+        }
+        break;
+      case Mode.ADDING:
+        if (oldEvent && oldEditEvent) {
+          remove(oldEvent);
+          remove(oldEditEvent);
+        }
+        this._onViewChange();
+        document.addEventListener(`keydown`, this._onEscKeyDown);
+        render(this._conatiner, this._pointEditComponent, RenderPosition.AFTERBEGIN);
+        break;
     }
   }
 
   setDefaultView() {
+    console.log(this._mode);
     if (this._mode !== Mode.DEFAULT) {
       this._replaceEditToEvent();
     }
@@ -94,8 +112,10 @@ export default class TravelPoint {
   _onEscKeyDown(evt) {
     const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
     if (isEscKey) {
+      if (this._mode === Mode.ADDING) {
+        this._onDataChange(this, EmptyPoint, null);
+      }
       this._replaceEditToEvent();
-      document.removeEventListener(`keydown`, this._onEscKeyDown);
     }
   }
 }

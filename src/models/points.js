@@ -41,7 +41,7 @@ export default class Points {
       return false;
     }
 
-    this._tasks = [].concat(this._points.slice(0, index), newPoint, this._points.slice(index + 1));
+    this._points = [].concat(this._points.slice(0, index), newPoint, this._points.slice(index + 1));
     this._callHandlers(this._dataChangeHandlers);
     return true;
   }
@@ -52,6 +52,11 @@ export default class Points {
 
   setDataChangeHandlers(handler) {
     this._dataChangeHandlers.push(handler);
+  }
+
+  addPoint(point) {
+    this._points = [].concat(point, this._points);
+    this._callHandlers(this._dataChangeHandlers);
   }
 
   _callHandlers(handlers) {

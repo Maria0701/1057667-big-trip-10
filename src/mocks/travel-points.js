@@ -1,4 +1,4 @@
-import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, TRIP_DESCRIPTION, TRAVEL_ADDONS} from '../const.js';
+import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, TRAVEL_ADDONS} from '../const.js';
 
 const TRAVEL_CITIES = [
   `Апатиты`,
