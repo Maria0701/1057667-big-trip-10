@@ -1,3 +1,5 @@
+import {SIGHTS_PHOTO, tripItemDescription, getPhotoArray} from './mocks/travel-points.js';
+
 export const MONTHS = [
   `jan`,
   `feb`,
@@ -48,6 +50,61 @@ export const TRAVEL_CITIES = [
   `Балаково`
 ];
 
+export const TRIP_DESCRIPTION = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
+
+export const TRAVEL_CITIES_WHOLE = [
+  {
+    travelCity: `Апатиты`,
+    description: tripItemDescription(TRIP_DESCRIPTION),
+    photos: getPhotoArray(SIGHTS_PHOTO),
+  },
+  {
+    travelCity: `Арзамас`,
+    description: tripItemDescription(TRIP_DESCRIPTION),
+    photos: getPhotoArray(SIGHTS_PHOTO),
+  },
+  {
+    travelCity: `Армавир`,
+    description: tripItemDescription(TRIP_DESCRIPTION),
+    photos: getPhotoArray(SIGHTS_PHOTO),
+  },
+  {
+    travelCity: `Арсеньев`,
+    description: tripItemDescription(TRIP_DESCRIPTION),
+    photos: getPhotoArray(SIGHTS_PHOTO),
+  },
+  {
+    travelCity: `Артем`,
+    description: tripItemDescription(TRIP_DESCRIPTION),
+    photos: getPhotoArray(SIGHTS_PHOTO),
+  },
+  {
+    travelCity: `Архангельск`,
+    description: tripItemDescription(TRIP_DESCRIPTION),
+    photos: getPhotoArray(SIGHTS_PHOTO),
+  },
+  {
+    travelCity: `Асбест`,
+    description: tripItemDescription(TRIP_DESCRIPTION),
+    photos: getPhotoArray(SIGHTS_PHOTO),
+  },
+  {
+    travelCity: `Астрахань`,
+    description: tripItemDescription(TRIP_DESCRIPTION),
+    photos: getPhotoArray(SIGHTS_PHOTO),
+  },
+  {
+    travelCity: `Ачинск`,
+    description: tripItemDescription(TRIP_DESCRIPTION),
+    photos: getPhotoArray(SIGHTS_PHOTO),
+  },
+  {
+    travelCity: `Балаково`,
+    description: tripItemDescription(TRIP_DESCRIPTION),
+    photos: getPhotoArray(SIGHTS_PHOTO),
+  },
+];
+
 export const TRAVEL_ADDONS = [
   {
     name: `Add luggage`,
@@ -75,10 +132,19 @@ export const TRAVEL_ADDONS = [
   }
 ];
 
-export const TRIP_DESCRIPTION = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
-
 export const FILTER_NAMES = [
   `everything`,
   `future`,
-  `past`
+  `past`,
 ];
+
+export const FilterType = {
+  EVERYTHING: `everything`,
+  FUTURE: `future`,
+  PAST: `past`,
+};
+
+export const Placeholder = {
+  TRANSPORT: `to`,
+  ACTION: `in`,
+};

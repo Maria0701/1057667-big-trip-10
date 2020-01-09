@@ -1,12 +1,16 @@
 import {getEventTime, getTimeDifference, getTimeIso} from '../utils/common.js';
 import AbstractComponent from './abstract-component.js';
 
-export const createArrayDates = (array) => {
+export const createArrayStartDates = (array) => {
   return array.map((it) => it.startDate);
 };
 
+export const createArrayEndDates = (array) => {
+  return array.map((it) => it.endDate);
+};
+
 export const createArrayCities = (array) => {
-  return array.map((it) => it.travelCity);
+  return array.map((it) => it.destination);
 };
 
 export const createArrayPrices = (array) => {
@@ -27,25 +31,20 @@ const generateTravelAddonMarkup = (addons) => {
     .join(`\n`);
 };
 
-const createEventItemTemplate = (event) => {
-  const {startDate, endDate, travelCity, travelPoints, travelPrice, travelAddons} = event;
-  const getTime = (fullDate) => {
-    return `${fullDate.getHours()}:${fullDate.getMinutes()}`;
-  };
-
+const createEventItemTemplate = (travelEvent) => {
+  const {startDate, endDate, destination, travelPoints, travelPrice, travelAddons} = travelEvent;
   return (
     `<li class="trip-events__item">
       <div class="event">
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${travelPoints}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${travelPoints} ${travelCity}</h3>
-
+        <h3 class="event__title">${travelPoints} ${destination}</h3>
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="${getTimeIso(startDate)}T${getTime(startDate)}">${getEventTime(startDate)}</time>
+            <time class="event__start-time" datetime="${getTimeIso(startDate)}T${getEventTime(startDate)}">${getEventTime(startDate)}</time>
             &mdash;
-            <time class="event__end-time" datetime="${getTimeIso(endDate)}T${getTime(endDate)}">${getEventTime(endDate)}</time>
+            <time class="event__end-time" datetime="${getTimeIso(endDate)}T${getEventTime(endDate)}">${getEventTime(endDate)}</time>
           </p>
           <p class="event__duration">${getTimeDifference(startDate, endDate)}</p>
         </div>

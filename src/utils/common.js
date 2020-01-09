@@ -7,7 +7,7 @@ const castTimeFormat = (value) => {
 };
 
 export const getEventTime = (date) => {
-  return moment(date).format(`h:mm`);
+  return moment(date).format(`hh:mm`);
 };
 
 const getTimecomparisonFormat = (compared, remark) => {
@@ -23,14 +23,17 @@ export const getTimeIsoFull = (time) => {
 };
 
 export const getDateFormatEditor = (date) => {
-  return moment(date).format(`DD/MM/YYYY h:mm`);
+  return moment(date).format(`DD/MM/YYYY hh:mm`);
+};
+
+export const getToStringDateFormat = (date) => {
+  return moment(date, `DD/MM/YYYY hh:mm`).format(`YYYY-MM-DDThh:mm:ss`);
 };
 
 export const getTimeDifference = (start, end) => {
   const differenceMinutes = Math.floor(((end - start) / (MILISECONDS.MILISECONDS_IN_NINUTE)) % 60);
   const differenceHours = Math.floor(((end - start) / (MILISECONDS.MILISECONDS_IN_HOURS)) % 24);
   const differenceDays = Math.floor(((end - start) / (MILISECONDS.MILISECONDS_IN_DAYS)));
-
   const timeDifferenseShow = `${getTimecomparisonFormat(differenceDays, `D`)} ${differenceDays > 0 && differenceHours === 0 ? `00H` : getTimecomparisonFormat(differenceHours, `H`)} ${ differenceMinutes !== 0 ? getTimecomparisonFormat(differenceMinutes, `M`) : `00M`}`;
   return timeDifferenseShow;
 };
