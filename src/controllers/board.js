@@ -74,7 +74,7 @@ export default class BoardController {
   }
 
   render() {
-    const container = this._container;
+    const container = this._container.getElement();
     const points = this._pointsModel.getPoints();
     const siteMainElement = document.querySelector(`.page-body`);
     const siteHeaderElement = siteMainElement.querySelector(`.page-header`);
