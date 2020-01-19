@@ -104,7 +104,11 @@ export default class TravelPoint {
 
   _replaceEditToEvent() {
     document.removeEventListener(`keydown`, this._onEscKeyDown);
-    replace(this._pointComponent, this._pointEditComponent);
+    this._pointEditComponent.reset();
+    if (document.contains(this._pointEditComponent.getElement())) {
+      replace(this._pointComponent, this._pointEditComponent);
+    }
+
     this._mode = Mode.DEFAULT;
   }
 

@@ -100,13 +100,15 @@ export default class BoardController {
     if (this._creatingPoint) {
       return;
     }
-
     const eventListComponent = this._eventListComponent.getElement();
     const tripEventsList = new DatesComponent();
-    render(eventListComponent, tripEventsList, RenderPosition.AFTERBEGIN);
+    if (!document.contains(tripEventsList.getElement())) {
+      render(eventListComponent, tripEventsList, RenderPosition.AFTERBEGIN);
+    }
     const tripEvt = tripEventsList.getElement().querySelector(`.trip-events__list`);
     this._creatingPoint = new TravelPoint(tripEvt, this._onDataChange, this._onViewChange);
     this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);
+    this._eventsControllers = this._eventsControllers.concat(this._creatingPoint);
   }
 
   _removePoints() {
@@ -167,7 +169,13 @@ export default class BoardController {
   }
 
   _onViewChange() {
-    this._eventsControllers.forEach((it) => it.setDefaultView());
+    this._eventsControllers.forEach((it) => {
+      if (it === this._creatingPoint) {
+        it.destroy();
+        this._creatingPoint = null;
+      }
+      return it.setDefaultView();
+    });
   }
 
   _onDataChange(eventsController, oldData, newData) {

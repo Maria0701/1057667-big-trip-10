@@ -77,10 +77,10 @@ const createOfferSelector = (selectors, selectorChosen) => {
 };
 
 const createPhotoTemplate = (photos) => {
-  return photos
+  return photos.src
   .map((photo) => {
     return (
-      `<img class="event__photo" src="${photo}" alt="Event photo">`
+      `<img class="event__photo" src="${photo}" alt="${photos.description}">`
     );
   }).join(`\n`);
 };
@@ -238,6 +238,19 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._applyFlatpickr();
   }
 
+  reset() {
+    const point = this._event;
+
+    this._travelPoints = point.travelPoints;
+    this._eventDestination = point.destination;
+    this._offers = point.travelAddons;
+    this._travelPrice = point.travelPrice;
+    this._startDate = point.startDate;
+    this._endDate = point.endDate;
+
+    this.rerender();
+  }
+
   setSaveButtonHandler(handler) {
     this.getElement().querySelector(`form`)
       .addEventListener(`submit`, handler);
@@ -289,9 +302,9 @@ export default class ItemEdit extends AbstractSmartComponent {
   _getPlaceDescription(travelCities) {
     this._eventDestination = this._eventDestination;
     travelCities.forEach((travelCity) => {
-      if (travelCity.travelCity === this._eventDestination) {
+      if (travelCity.name === this._eventDestination) {
         this._placeDescription = travelCity.description;
-        this._placePhotos = travelCity.photos;
+        this._placePhotos = travelCity.pictures;
       }
     });
   }
@@ -306,9 +319,9 @@ export default class ItemEdit extends AbstractSmartComponent {
 
     const eventDestination = element.querySelector(`.event__input--destination`);
     TRAVEL_CITIES_WHOLE.forEach((travelCity) => {
-      if (travelCity.travelCity === this._eventDestination) {
+      if (travelCity.name === this._eventDestination) {
         this._placeDescription = travelCity.description;
-        this._placePhotos = travelCity.photos;
+        this._placePhotos = travelCity.pictures;
       }
     });
     eventDestination.addEventListener(`change`, () => {

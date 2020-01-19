@@ -54,54 +54,84 @@ export const TRIP_DESCRIPTION = `Lorem ipsum dolor sit amet, consectetur adipisc
 
 export const TRAVEL_CITIES_WHOLE = [
   {
-    travelCity: `Апатиты`,
+    name: `Апатиты`,
     description: tripItemDescription(TRIP_DESCRIPTION),
-    photos: getPhotoArray(SIGHTS_PHOTO),
+    pictures: {
+      src: getPhotoArray(SIGHTS_PHOTO),
+      description: `Chamonix parliament building`,
+    }
   },
   {
-    travelCity: `Арзамас`,
+    name: `Арзамас`,
     description: tripItemDescription(TRIP_DESCRIPTION),
-    photos: getPhotoArray(SIGHTS_PHOTO),
+    pictures: {
+      src: getPhotoArray(SIGHTS_PHOTO),
+      description: `Chamonix parliament building`,
+    }
   },
   {
-    travelCity: `Армавир`,
+    name: `Армавир`,
     description: tripItemDescription(TRIP_DESCRIPTION),
-    photos: getPhotoArray(SIGHTS_PHOTO),
+    pictures: {
+      src: getPhotoArray(SIGHTS_PHOTO),
+      description: `Chamonix parliament building`,
+    }
   },
   {
-    travelCity: `Арсеньев`,
+    name: `Арсеньев`,
     description: tripItemDescription(TRIP_DESCRIPTION),
-    photos: getPhotoArray(SIGHTS_PHOTO),
+    pictures: {
+      src: getPhotoArray(SIGHTS_PHOTO),
+      description: `Chamonix parliament building`,
+    }
   },
   {
-    travelCity: `Артем`,
+    name: `Артем`,
     description: tripItemDescription(TRIP_DESCRIPTION),
-    photos: getPhotoArray(SIGHTS_PHOTO),
+    pictures: {
+      src: getPhotoArray(SIGHTS_PHOTO),
+      description: `Chamonix parliament building`,
+    }
   },
   {
-    travelCity: `Архангельск`,
+    name: `Архангельск`,
     description: tripItemDescription(TRIP_DESCRIPTION),
-    photos: getPhotoArray(SIGHTS_PHOTO),
+    pictures: {
+      src: getPhotoArray(SIGHTS_PHOTO),
+      description: `Chamonix parliament building`,
+    }
   },
   {
-    travelCity: `Асбест`,
+    name: `Асбест`,
     description: tripItemDescription(TRIP_DESCRIPTION),
-    photos: getPhotoArray(SIGHTS_PHOTO),
+    pictures: {
+      src: getPhotoArray(SIGHTS_PHOTO),
+      description: `Chamonix parliament building`,
+    }
   },
   {
-    travelCity: `Астрахань`,
+    name: `Астрахань`,
     description: tripItemDescription(TRIP_DESCRIPTION),
-    photos: getPhotoArray(SIGHTS_PHOTO),
+    pictures: {
+      src: getPhotoArray(SIGHTS_PHOTO),
+      description: `Chamonix parliament building`,
+    }
   },
   {
-    travelCity: `Ачинск`,
+    name: `Ачинск`,
     description: tripItemDescription(TRIP_DESCRIPTION),
-    photos: getPhotoArray(SIGHTS_PHOTO),
+    pictures: {
+      src: getPhotoArray(SIGHTS_PHOTO),
+      description: `Chamonix parliament building`,
+    }
   },
   {
-    travelCity: `Балаково`,
+    name: `Балаково`,
     description: tripItemDescription(TRIP_DESCRIPTION),
-    photos: getPhotoArray(SIGHTS_PHOTO),
+    pictures: {
+      src: getPhotoArray(SIGHTS_PHOTO),
+      description: `Chamonix parliament building`,
+    }
   },
 ];
 
