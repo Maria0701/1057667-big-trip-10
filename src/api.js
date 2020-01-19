@@ -1,3 +1,6 @@
+import Point from './models/point.js';
+import Destination from './models/destination.js';
+
 const Method = {
   GET: `GET`,
   POST: `POST`,
@@ -19,19 +22,27 @@ const API = class {
     this._authorization = authorization;
   }
 
-  getTasks() {
-
+  getDestinations() {
+    return this._load({url: `destinations`})
+      .then((response) => response.json())
+      .then(Destination.parseDestinations);
   }
 
-  createTask(task) {
-    console.log(task);
+  getPoints() {
+    return this._load({url: `points`})
+      .then((response) => response.json())
+      .then(Point.parsePoints);
   }
 
-  updateTask(id, data) {
+  createPoint(point) {
+    console.log(point);
+  }
+
+  updatePoint(id, data) {
     console.log(id, data);
   }
 
-  deleteTask(id) {
+  deletePoint(id) {
     console.log(id);
   }
 

@@ -1,6 +1,6 @@
 import {getEventTime, getTimeDifference, getTimeIso} from '../utils/common.js';
 import AbstractComponent from './abstract-component.js';
-import {TRAVEL_TRANSPORT, Placeholder} from '../const.js';
+import {TRAVEL_TRANSPORT, Placeholder, CURRENCY} from '../const.js';
 
 export const createArrayStartDates = (array) => {
   return array.map((it) => it.startDate);
@@ -11,7 +11,7 @@ export const createArrayEndDates = (array) => {
 };
 
 export const createArrayCities = (array) => {
-  return array.map((it) => it.destination);
+  return array.map((it) => it.destination.name);
 };
 
 export const createArrayPrices = (array) => {
@@ -20,12 +20,13 @@ export const createArrayPrices = (array) => {
 
 const generateTravelAddonMarkup = (addons) => {
   return addons
+  .slice(0, 2)
   .map((addon) => {
     return (
       `<li class="event__offer">
-        <span class="event__offer-title">${addon.name}</span>
+        <span class="event__offer-title">${addon.title}</span>
         &plus;
-        ${addon.currency}&nbsp;<span class="event__offer-price">${addon.price}</span>
+        ${CURRENCY}&nbsp;<span class="event__offer-price">${addon.price}</span>
        </li>`
     );
   })
@@ -40,7 +41,7 @@ const createEventItemTemplate = (travelEvent) => {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${travelPoints}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${travelPoints}  ${TRAVEL_TRANSPORT.includes(travelPoints) ? Placeholder.TRANSPORT : Placeholder.ACTION} ${destination}</h3>
+        <h3 class="event__title">${travelPoints}  ${TRAVEL_TRANSPORT.includes(travelPoints) ? Placeholder.TRANSPORT : Placeholder.ACTION} ${destination.name}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${getTimeIso(startDate)}T${getEventTime(startDate)}">${getEventTime(startDate)}</time>

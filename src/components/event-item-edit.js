@@ -1,13 +1,16 @@
-import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, TRAVEL_CITIES, TRAVEL_ADDONS, TRAVEL_CITIES_WHOLE, Placeholder} from '../const.js';
+import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, TRAVEL_ADDONS, CURRENCY, Placeholder} from '../const.js';
 import {getDateFormatEditor, getToStringDateFormat} from '../utils/common.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 
-
 const OFFER_PREFIX = `event-offer-`;
 const getOfferName = (name) => {
   return name.substring(OFFER_PREFIX.length);
+};
+
+const destinationNames = (cities) => {
+  return cities.map((city) => city.name);
 };
 
 const parseFormData = (formData) => {
@@ -63,13 +66,14 @@ const createCityOptions = (cities, citySelected) => {
 const createOfferSelector = (selectors, selectorChosen) => {
   return selectors
   .map((selector) => {
+    const selectorRemark = selector.title.replace(` `, ``).toLowerCase();
     return (
       `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${selector.remark}-1" type="checkbox" name="event-offer-${selector.remark}" ${selectorChosen.includes(selector) ? `checked` : ``}>
-      <label class="event__offer-label" for="event-offer-${selector.remark}-1">
-        <span class="event__offer-title">${selector.name}</span>
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${selectorRemark}-1" type="checkbox" name="event-offer-${selectorRemark}" ${selectorChosen.includes(selector) ? `checked` : ``}>
+      <label class="event__offer-label" for="event-offer-${selectorRemark}-1">
+        <span class="event__offer-title">${selector.title}</span>
         &plus;
-        ${selector.currency};&nbsp;<span class="event__offer-price">${selector.price}</span>
+        ${CURRENCY};&nbsp;<span class="event__offer-price">${selector.price}</span>
       </label>
     </div>`
     );
@@ -77,15 +81,15 @@ const createOfferSelector = (selectors, selectorChosen) => {
 };
 
 const createPhotoTemplate = (photos) => {
-  return photos.src
+  return photos
   .map((photo) => {
     return (
-      `<img class="event__photo" src="${photo}" alt="${photos.description}">`
+      `<img class="event__photo" src="${photo.src}" alt="${photo.description}">`
     );
   }).join(`\n`);
 };
 
-const createEventEditTemplate = (travelEvent, options = {}) => {
+const createEventEditTemplate = (travelEvent, options = {}, travelCities) => {
   const {travelPoints, destination, description, photos, travelPrice, travelAddons} = options;
   const {startDate, endDate, isFavorite} = travelEvent;
   const isBlockSaveButton = (!startDate || !endDate || !destination || !travelPrice);
@@ -118,7 +122,7 @@ const createEventEditTemplate = (travelEvent, options = {}) => {
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
             <datalist id="destination-list-1">
-              ${createCityOptions(TRAVEL_CITIES, destination)}
+              ${createCityOptions(destinationNames(travelCities), destination)}
             </datalist>
           </div>
 
@@ -159,13 +163,14 @@ const createEventEditTemplate = (travelEvent, options = {}) => {
         </header>
         ${destination ?
       `<section class="event__details">
-          <section class="event__section  event__section--offers">
+        ${TRAVEL_ADDONS.length !== 0 ?
+      `<section class="event__section  event__section--offers">
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
             <div class="event__available-offers">
               ${createOfferSelector(TRAVEL_ADDONS, travelAddons)}
             </div>
-          </section>
-
+          </section>`
+      : ``}
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
             <p class="event__destination-description">${description}</p>
@@ -184,7 +189,7 @@ const createEventEditTemplate = (travelEvent, options = {}) => {
 };
 
 export default class ItemEdit extends AbstractSmartComponent {
-  constructor(travelEvent) {
+  constructor(travelEvent, travelCities) {
     super();
     this._event = travelEvent;
     this._flatpickr = null;
@@ -192,12 +197,13 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._favouriteButtonHandler = null;
     this._rollUpHandler = null;
     this._deleteButtonHandler = null;
+    this._travelCities = travelCities;
     this._offers = travelEvent.travelAddons;
     this._travelPoints = travelEvent.travelPoints;
     this._isFavorite = travelEvent.isFavorite;
-    this._eventDestination = travelEvent.destination;
-    this._placeDescription = null;
-    this._placePhotos = null;
+    this._eventDestination = travelEvent.destination.name;
+    this._placeDescription = travelEvent.destination.description;
+    this._placePhotos = travelEvent.destination.pictures;
     this._travelPrice = travelEvent.travelPrice;
 
     this._applyFlatpickr();
@@ -205,7 +211,7 @@ export default class ItemEdit extends AbstractSmartComponent {
   }
 
   getTemplate() {
-    this._getPlaceDescription(TRAVEL_CITIES_WHOLE);
+    this._getPlaceDescription(this._travelCities);
     return createEventEditTemplate(this._event, {
       travelPoints: this._travelPoints,
       destination: this._eventDestination,
@@ -213,7 +219,7 @@ export default class ItemEdit extends AbstractSmartComponent {
       photos: this._placePhotos,
       travelAddons: this._offers,
       travelPrice: this._travelPrice,
-    });
+    }, this._travelCities);
   }
 
   removeElement() {
@@ -318,7 +324,7 @@ export default class ItemEdit extends AbstractSmartComponent {
     });
 
     const eventDestination = element.querySelector(`.event__input--destination`);
-    TRAVEL_CITIES_WHOLE.forEach((travelCity) => {
+    this._travelCities.forEach((travelCity) => {
       if (travelCity.name === this._eventDestination) {
         this._placeDescription = travelCity.description;
         this._placePhotos = travelCity.pictures;
@@ -326,7 +332,7 @@ export default class ItemEdit extends AbstractSmartComponent {
     });
     eventDestination.addEventListener(`change`, () => {
       this._eventDestination = eventDestination.value;
-      this._getPlaceDescription(TRAVEL_CITIES_WHOLE);
+      this._getPlaceDescription(this._travelCities);
       this.rerender();
     });
   }

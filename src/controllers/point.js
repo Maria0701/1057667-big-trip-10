@@ -21,10 +21,11 @@ export const EmptyPoint = {
 };
 
 export default class TravelPoint {
-  constructor(container, onDataChange, onViewChange) {
+  constructor(container, onDataChange, onViewChange, travelCities) {
     this._conatiner = container;
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
+    this._travelCities = travelCities;
 
     this._mode = Mode.DEFAULT;
     this._pointComponent = null;
@@ -38,7 +39,7 @@ export default class TravelPoint {
     this._mode = mode;
 
     this._pointComponent = new EventComponent(travelEvent);
-    this._pointEditComponent = new ItemEditComponent(travelEvent);
+    this._pointEditComponent = new ItemEditComponent(travelEvent, this._travelCities);
     this._pointComponent.setEditButtonEventHandler(() => {
       this._replaceEventToEdit();
       document.addEventListener(`keydown`, this._onEscKeyDown);
