@@ -1,5 +1,6 @@
 import Point from './models/point.js';
 import Destination from './models/destination.js';
+import Offer from './models/offer.js';
 
 const Method = {
   GET: `GET`,
@@ -28,6 +29,12 @@ const API = class {
       .then(Destination.parseDestinations);
   }
 
+  getOffers() {
+    return this._load({url: `offers`})
+      .then((response) => response.json())
+      .then(Offer.parseOffers);
+  }
+
   getPoints() {
     return this._load({url: `points`})
       .then((response) => response.json())
@@ -39,7 +46,14 @@ const API = class {
   }
 
   updatePoint(id, data) {
-    console.log(id, data);
+    return this._load({
+      url: `points/${id}`,
+      method: Method.PUT,
+      body: JSON.stringify(data.toRAW()),
+      headers: new Headers({'Content-Type': `application/json`})
+    })
+    .then((response) => response.json())
+    .then(Point.parsePoint);
   }
 
   deletePoint(id) {

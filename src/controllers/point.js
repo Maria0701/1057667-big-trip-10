@@ -2,11 +2,54 @@ import EventComponent from '../components/event-item.js';
 import ItemEditComponent from '../components/event-item-edit.js';
 import {RenderPosition, render, replace, remove} from '../utils/render.js';
 import {TRAVEL_TRANSPORT} from '../const.js';
+import {getToStringDateFormat} from '../utils/common.js';
+import {travelOffers, travelCities} from '../main.js';
+import PointModel from '../models/point.js';
 
 export const Mode = {
   ADDING: `adding`,
   DEFAULT: `default`,
   EDIT: `edit`
+};
+
+const OFFER_PREFIX = `event-offer-`;
+
+const getOfferName = (name) => {
+  return name.substring(OFFER_PREFIX.length);
+};
+
+const parseFormData = (formData) => {
+  const allOffers = document.querySelectorAll(`.event__offer-checkbox`);
+  const actualAddons = (offersAll, allAddons) => {
+    const nArray = [];
+    Array.from(offersAll).forEach((offer) => {
+      if (offer.checked) {
+        allAddons.forEach((addon) => {
+          if (addon.remark === getOfferName(offer.name)) {
+            nArray.push(addon);
+          }
+        });
+      }
+    });
+    return nArray;
+  };
+  const startDate = formData.get(`event-start-time`);
+  const endDate = formData.get(`event-end-time`);
+  let destination;
+  travelCities.forEach((it) => {
+    if (it.name === formData.get(`event-destination`)) {
+      destination = it;
+    }
+  });
+  return new PointModel({
+    'base_price': formData.get(`event-price`),
+    'date_from': new Date(getToStringDateFormat(startDate)),
+    'date_to': new Date(getToStringDateFormat(endDate)),
+    'destination': destination,
+    'is_favorite': false,
+    'offers': actualAddons(allOffers, travelOffers),
+    'type': formData.get(`event-type`),
+  });
 };
 
 
@@ -21,11 +64,10 @@ export const EmptyPoint = {
 };
 
 export default class TravelPoint {
-  constructor(container, onDataChange, onViewChange, travelCities) {
+  constructor(container, onDataChange, onViewChange) {
     this._conatiner = container;
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
-    this._travelCities = travelCities;
 
     this._mode = Mode.DEFAULT;
     this._pointComponent = null;
@@ -39,7 +81,7 @@ export default class TravelPoint {
     this._mode = mode;
 
     this._pointComponent = new EventComponent(travelEvent);
-    this._pointEditComponent = new ItemEditComponent(travelEvent, this._travelCities);
+    this._pointEditComponent = new ItemEditComponent(travelEvent);
     this._pointComponent.setEditButtonEventHandler(() => {
       this._replaceEventToEdit();
       document.addEventListener(`keydown`, this._onEscKeyDown);
@@ -47,7 +89,9 @@ export default class TravelPoint {
 
     this._pointEditComponent.setSaveButtonHandler((evt) => {
       evt.preventDefault();
-      const data = this._pointEditComponent.getData();
+      const formData = this._pointEditComponent.getData();
+      const data = parseFormData(formData);
+
       this._onDataChange(this, travelEvent, data);
     });
 
@@ -56,9 +100,10 @@ export default class TravelPoint {
     });
 
     this._pointEditComponent.setFavouriteButtonHandler(() => {
-      this._onDataChange(this, travelEvent, Object.assign({}, travelEvent, {
-        isFavorite: !travelEvent.isFavorite,
-      }));
+      const newPoint = PointModel.clone(travelEvent);
+      newPoint.isFavorite = !newPoint.isFavorite;
+
+      this._onDataChange(this, travelEvent, newPoint);
     });
 
     this._pointEditComponent.setDeleteButtonClickHandler(() => this._onDataChange(this, travelEvent, null));

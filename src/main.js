@@ -7,7 +7,7 @@ import TripController from './controllers/board.js';
 import FilterController from './controllers/filter.js';
 import StatisticsComponent from './components/stats.js';
 const AUTHORIZATION = `Basic dXNlckBwY=`;
-const END_POINT = `https://htmlacademy-es-10.appspot.com/big-trip/`;
+const END_POINT = `https://htmlacademy-es-10.appspot.com/big-trip`;
 
 const api = new API(END_POINT, AUTHORIZATION);
 const pointsModel = new Points();
@@ -31,12 +31,19 @@ const statisticsComponent = new StatisticsComponent(pointsModel);
 render(boardPlace, statisticsComponent, RenderPosition.BEFOREEND);
 statisticsComponent.hide();
 
-let travelCities = [];
+export let travelCities = [];
 api.getDestinations()
   .then((destinations) => {
     destinations.map((it) => travelCities.push(it));
     return travelCities;
   });
+
+export let travelOffers = [];
+api.getOffers()
+    .then((offers) => {
+      offers.map((it) => travelOffers.push(it));
+      return travelOffers;
+    });
 
 api.getPoints()
     .then((points) => {
