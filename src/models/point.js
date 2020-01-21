@@ -12,14 +12,14 @@ export default class Point {
 
   toRAW() {
     return {
-      'id': this.id,
-      'base_price': this.travelPrice,
+      'base_price': Number(this.travelPrice),
       'date_from': this.startDate.toISOString(),
       'date_to': this.endDate.toISOString(),
       'destination': this.destination,
-      'type': this.travelPoints,
+      'id': this.id,
+      'is_favorite': this.isFavorite,
       'offers': Array.from(this.travelAddons),
-      'is_favorite': this.isFavorite
+      'type': this.travelPoints,
     };
   }
 

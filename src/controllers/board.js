@@ -186,18 +186,24 @@ export default class BoardController {
         eventsController.destroy();
         this._updatePoints();
       } else {
-        this._pointsModel.addPoint(newData);
-        eventsController.render(newData, PointControllerMode.DEFAULT);
+        this._api.createPoint(newData)
+          .then((pointModel) => {
+            this._pointsModel.addPoint(pointModel);
+            eventsController.render(pointModel, PointControllerMode.DEFAULT);
 
-        const destroyedPoint = this._eventsControllers.pop();
-        destroyedPoint.destroy();
+            const destroyedPoint = this._eventsControllers.pop();
+            destroyedPoint.destroy();
 
-        this._eventsControllers = [].concat(eventsController, this._eventsControllers);
-        this._updatePoints();
+            this._eventsControllers = [].concat(eventsController, this._eventsControllers);
+            this._updatePoints();
+          });
       }
     } else if (newData === null) {
-      this._pointsModel.removePoint(oldData.id);
-      this._updatePoints();
+      this._api.deletePoint(oldData.id)
+        .then(() => {
+          this._pointsModel.removePoint(oldData.id);
+          this._updatePoints();
+        });
     } else {
       this._api.updatePoint(oldData.id, newData)
         .then((pointModel) => {

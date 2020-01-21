@@ -64,7 +64,7 @@ const parseFormData = (formData) => {
 export const EmptyPoint = {
   startDate: new Date(),
   endDate: new Date(),
-  destination: ``,
+  destination: ` `,
   travelPoints: TRAVEL_TRANSPORT[0],
   travelPrice: ``,
   travelAddons: [],

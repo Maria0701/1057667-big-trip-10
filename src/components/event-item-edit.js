@@ -5,6 +5,11 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import {travelOffers, travelCities} from '../main.js';
 
+const DefaultData = {
+  DELETE_BUTTON_TEXT: `Delete`,
+  SAVE_BUTTON_TEXT: `Save`,
+};
+
 const destinationNames = (cities) => {
   return cities.map((city) => city.name);
 };
@@ -62,9 +67,11 @@ const createPhotoTemplate = (photos) => {
 };
 
 const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
-  const {travelPoints, destination, description, photos, travelPrice, travelAddons} = options;
+  const {travelPoints, destination, description, photos, travelPrice, travelAddons, externalData} = options;
   const {startDate, endDate, isFavorite} = travelEvent;
-  const isBlockSaveButton = (!startDate || !endDate || !destination || !travelPrice);
+  const travelCityNames = destinationNames(travelCities);
+  const isValidCity = travelCityNames.includes(destination);
+  const isBlockSaveButton = (isValidCity && travelPrice > 0);
   return (
     `<li class="trip-events__item">
       <form class="event  event--edit" action="#" method="post">
@@ -92,9 +99,9 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${travelPoints} ${TRAVEL_TRANSPORT.includes(travelPoints) ? Placeholder.TRANSPORT : Placeholder.ACTION}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination ? destination : ``}" list="destination-list-1">
             <datalist id="destination-list-1">
-              ${createCityOptions(destinationNames(travelCities), destination)}
+              ${createCityOptions(travelCityNames, destination)}
             </datalist>
           </div>
 
@@ -117,9 +124,8 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
             </label>
             <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${travelPrice}">
           </div>
-
-          <button class="event__save-btn  btn  btn--blue" type="submit" ${isBlockSaveButton ? `disabled` : ``}>Save</button>
-          <button class="event__reset-btn" type="reset">Delete</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${isBlockSaveButton ? `` : `disabled`}>${externalData.SAVE_BUTTON_TEXT}</button>
+          <button class="event__reset-btn" type="reset">${externalData.DELETE_BUTTON_TEXT}</button>
 
           <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
           <label class="event__favorite-btn" for="event-favorite-1">
@@ -164,7 +170,6 @@ export default class ItemEdit extends AbstractSmartComponent {
   constructor(travelEvent) {
     super();
     this._event = travelEvent;
-    this._travelOffers = null;
     this._flatpickr = null;
     this._saveButtonHandler = null;
     this._favouriteButtonHandler = null;
@@ -177,7 +182,8 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._placeDescription = travelEvent.destination.description;
     this._placePhotos = travelEvent.destination.pictures;
     this._travelPrice = travelEvent.travelPrice;
-
+    this._travelOffers = [];
+    this._externalData = DefaultData;
     this._applyFlatpickr();
     this._subscribeOnEvents();
   }
@@ -191,6 +197,7 @@ export default class ItemEdit extends AbstractSmartComponent {
       photos: this._placePhotos,
       travelAddons: this._offers,
       travelPrice: this._travelPrice,
+      externalData: this._externalData,
     }, this._travelOffers);
   }
 
@@ -227,6 +234,11 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._endDate = point.endDate;
     this._getTypeOffers(travelOffers);
 
+    this.rerender();
+  }
+
+  setData(data) {
+    this._externalData = Object.assign({}, DefaultData, data);
     this.rerender();
   }
 
@@ -290,7 +302,6 @@ export default class ItemEdit extends AbstractSmartComponent {
   }
 
   _getTypeOffers(travelOfs) {
-    this._travelPoints = this._travelPoints;
     travelOfs.forEach((it) => {
       if (it.type === this._travelPoints) {
         this._travelOffers = it.offers;
@@ -303,6 +314,12 @@ export default class ItemEdit extends AbstractSmartComponent {
     const eventType = element.querySelector(`.event__type-list`);
     eventType.addEventListener(`change`, (evt) => {
       this._travelPoints = evt.target.value;
+      this.rerender();
+    });
+
+    const priceContainer = element.querySelector(`.event__input--price`);
+    priceContainer.addEventListener(`change`, (evt) => {
+      this._travelPrice = evt.target.value;
       this.rerender();
     });
 
