@@ -196,6 +196,9 @@ export default class BoardController {
 
             this._eventsControllers = [].concat(eventsController, this._eventsControllers);
             this._updatePoints();
+          })
+          .catch(() => {
+            eventsController.animateEvent();
           });
       }
     } else if (newData === null) {
@@ -203,6 +206,9 @@ export default class BoardController {
         .then(() => {
           this._pointsModel.removePoint(oldData.id);
           this._updatePoints();
+        })
+        .catch(() => {
+          eventsController.animateEvent();
         });
     } else {
       this._api.updatePoint(oldData.id, newData)
@@ -212,6 +218,9 @@ export default class BoardController {
             eventsController.render(pointModel, PointControllerMode.DEFAULT);
             this._updatePoints();
           }
+        })
+        .catch(() => {
+          eventsController.animateEvent();
         });
     }
   }

@@ -6,8 +6,8 @@ import 'flatpickr/dist/flatpickr.css';
 import {travelOffers, travelCities} from '../main.js';
 
 const DefaultData = {
-  DELETE_BUTTON_TEXT: `Delete`,
-  SAVE_BUTTON_TEXT: `Save`,
+  deleteButtonText: `Delete`,
+  saveButtonText: `Save`,
 };
 
 const destinationNames = (cities) => {
@@ -72,6 +72,8 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
   const travelCityNames = destinationNames(travelCities);
   const isValidCity = travelCityNames.includes(destination);
   const isBlockSaveButton = (isValidCity && travelPrice > 0);
+  const deleteButtonText = externalData.deleteButtonText;
+  const saveButtonText = externalData.saveButtonText;
   return (
     `<li class="trip-events__item">
       <form class="event  event--edit" action="#" method="post">
@@ -124,8 +126,8 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
             </label>
             <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${travelPrice}">
           </div>
-          <button class="event__save-btn  btn  btn--blue" type="submit" ${isBlockSaveButton ? `` : `disabled`}>${externalData.SAVE_BUTTON_TEXT}</button>
-          <button class="event__reset-btn" type="reset">${externalData.DELETE_BUTTON_TEXT}</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${isBlockSaveButton ? `` : `disabled`}>${saveButtonText}</button>
+          <button class="event__reset-btn" type="reset">${deleteButtonText}</button>
 
           <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
           <label class="event__favorite-btn" for="event-favorite-1">

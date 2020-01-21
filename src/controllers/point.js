@@ -6,6 +6,8 @@ import {getToStringDateFormat} from '../utils/common.js';
 import {travelOffers, travelCities} from '../main.js';
 import PointModel from '../models/point.js';
 
+const ANIMATION_TIMEOUT = 10000;
+
 export const Mode = {
   ADDING: `adding`,
   DEFAULT: `default`,
@@ -97,6 +99,9 @@ export default class TravelPoint {
 
     this._pointEditComponent.setSaveButtonHandler((evt) => {
       evt.preventDefault();
+      this._pointEditComponent.setData({
+        saveButtonText: `Saving...`,
+      });
       const formData = this._pointEditComponent.getData();
       const data = parseFormData(formData);
 
@@ -114,7 +119,12 @@ export default class TravelPoint {
       this._onDataChange(this, travelEvent, newPoint);
     });
 
-    this._pointEditComponent.setDeleteButtonClickHandler(() => this._onDataChange(this, travelEvent, null));
+    this._pointEditComponent.setDeleteButtonClickHandler(() => {
+      this._pointEditComponent.setData({
+        deleteButtonText: `Deleting...`,
+      });
+      this._onDataChange(this, travelEvent, null);
+    });
 
     switch (mode) {
       case Mode.DEFAULT:
@@ -148,6 +158,19 @@ export default class TravelPoint {
     remove(this._pointComponent);
     remove(this._pointEditComponent);
     document.removeEventListener(`keydown`, this._onEscKeyDown);
+  }
+
+  animateEvent() {
+    this._pointEditComponent.getElement().style.animation = `opacity ${ANIMATION_TIMEOUT / 1000}s`;
+
+    setTimeout(() => {
+      this._pointEditComponent.getElement().style.animation = ``;
+
+      this._pointEditComponent.setData({
+        saveButtonText: `Save`,
+        deleteButtonText: `Delete`,
+      }, ANIMATION_TIMEOUT);
+    });
   }
 
   _replaceEventToEdit() {
