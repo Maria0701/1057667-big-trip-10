@@ -2,7 +2,7 @@ import AbstractSmartComponent from './abstract-smart-component.js';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import moment from 'moment';
-import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY} from '../const.js';
+import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, CURRENCY} from '../const.js';
 
 const COLOR = `#ffffff`;
 
@@ -33,7 +33,7 @@ const getUpperCase = (lowerCaseArray) => lowerCaseArray.map((lowerCaseItem) =>lo
 const CHART_INFO = {
   MONEY: {
     name: `MONEY`,
-    remark: `€`,
+    remark: CURRENCY,
     remarkPlace: `start`,
     formula: calcPriceUniqueActivity
   },

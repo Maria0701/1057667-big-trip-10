@@ -35,7 +35,7 @@ const singleDateContainer = (list, event) => {
   return singleDayContainer;
 };
 
-const renderEvents = (dayContainer, tripEventsLists, travelEvents, onDataChange, onViewChange) => {
+const renderEvents = (dayContainer, tripEventsLists, travelEvents, onDataChange, onViewChange, travelCities) => {
   return travelEvents.map((travelEvent) => {
     let container;
     if (Array.from(tripEventsLists).length > 0) {
@@ -43,7 +43,7 @@ const renderEvents = (dayContainer, tripEventsLists, travelEvents, onDataChange,
     } else {
       container = tripEventsLists;
     }
-    const travelPoint = new TravelPoint(container, onDataChange, onViewChange);
+    const travelPoint = new TravelPoint(container, onDataChange, onViewChange, travelCities);
     travelPoint.render(travelEvent, PointControllerMode.DEFAULT);
     return travelPoint;
   });
@@ -55,10 +55,11 @@ const renderSingleDatesContainers = (place, array) => {
 
 
 export default class BoardController {
-  constructor(container, travelEvents, pointsModel) {
+  constructor(container, travelEvents, pointsModel, api) {
     this._container = container;
     this._pointsModel = pointsModel;
     this._eventsControllers = [];
+    this._api = api;
     this._noEventsComponent = new NoEventsComponent();
     this._totalPriceComponent = new TotalPriceComponent(createArrayPrices(travelEvents));
     this._tripInfoComponent = new TripInfoElement(createArrayCities(travelEvents), createArrayStartDates(travelEvents), createArrayEndDates(travelEvents));
@@ -100,13 +101,15 @@ export default class BoardController {
     if (this._creatingPoint) {
       return;
     }
-
     const eventListComponent = this._eventListComponent.getElement();
     const tripEventsList = new DatesComponent();
-    render(eventListComponent, tripEventsList, RenderPosition.AFTERBEGIN);
+    if (!document.contains(tripEventsList.getElement())) {
+      render(eventListComponent, tripEventsList, RenderPosition.AFTERBEGIN);
+    }
     const tripEvt = tripEventsList.getElement().querySelector(`.trip-events__list`);
-    this._creatingPoint = new TravelPoint(tripEvt, this._onDataChange, this._onViewChange);
+    this._creatingPoint = new TravelPoint(tripEvt, this._onDataChange, this._onViewChange, this._travelCities);
     this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);
+    this._eventsControllers = this._eventsControllers.concat(this._creatingPoint);
   }
 
   _removePoints() {
@@ -131,7 +134,7 @@ export default class BoardController {
       tripEventsLists = eventListComponent.querySelector(`.trip-events__list`);
     }
 
-    const newEvents = renderEvents(eventListComponent, tripEventsLists, points, this._onDataChange, this._onViewChange);
+    const newEvents = renderEvents(eventListComponent, tripEventsLists, points, this._onDataChange, this._onViewChange, this._travelCities);
 
     this._eventsControllers = this._eventsControllers.concat(newEvents);
   }
@@ -167,7 +170,13 @@ export default class BoardController {
   }
 
   _onViewChange() {
-    this._eventsControllers.forEach((it) => it.setDefaultView());
+    this._eventsControllers.forEach((it) => {
+      if (it === this._creatingPoint) {
+        it.destroy();
+        this._creatingPoint = null;
+      }
+      return it.setDefaultView();
+    });
   }
 
   _onDataChange(eventsController, oldData, newData) {
@@ -190,11 +199,14 @@ export default class BoardController {
       this._pointsModel.removePoint(oldData.id);
       this._updatePoints();
     } else {
-      const isSuccess = this._pointsModel.updatePoint(oldData.id, newData);
-      if (isSuccess) {
-        eventsController.render(newData, PointControllerMode.DEFAULT);
-        this._updatePoints();
-      }
+      this._api.updatePoint(oldData.id, newData)
+        .then((pointModel) => {
+          const isSuccess = this._pointsModel.updatePoint(oldData.id, pointModel);
+          if (isSuccess) {
+            eventsController.render(pointModel, PointControllerMode.DEFAULT);
+            this._updatePoints();
+          }
+        });
     }
   }
 

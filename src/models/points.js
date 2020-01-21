@@ -15,6 +15,7 @@ export default class Points {
 
   setPoints(points) {
     this._points = Array.from(points);
+    this._callHandlers(this._dataChangeHandlers);
   }
 
   setFilter(filterType) {

@@ -1,41 +1,12 @@
-import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, TRAVEL_CITIES, TRAVEL_ADDONS, TRAVEL_CITIES_WHOLE, Placeholder} from '../const.js';
-import {getDateFormatEditor, getToStringDateFormat} from '../utils/common.js';
+import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, CURRENCY, Placeholder} from '../const.js';
+import {getDateFormatEditor} from '../utils/common.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.css';
+import {travelOffers, travelCities} from '../main.js';
 
-
-const OFFER_PREFIX = `event-offer-`;
-const getOfferName = (name) => {
-  return name.substring(OFFER_PREFIX.length);
-};
-
-const parseFormData = (formData) => {
-  const allOffers = document.querySelectorAll(`.event__offer-checkbox`);
-  const actualAddons = (offersAll, allAddons) => {
-    const nArray = [];
-    Array.from(offersAll).forEach((offer) => {
-      if (offer.checked) {
-        allAddons.forEach((addon) => {
-          if (addon.remark === getOfferName(offer.name)) {
-            nArray.push(addon);
-          }
-        });
-      }
-    });
-    return nArray;
-  };
-
-  const startDate = formData.get(`event-start-time`);
-  const endDate = formData.get(`event-end-time`);
-  return {
-    startDate: new Date(getToStringDateFormat(startDate)),
-    endDate: new Date(getToStringDateFormat(endDate)),
-    destination: formData.get(`event-destination`),
-    travelPoints: formData.get(`event-type`),
-    travelAddons: actualAddons(allOffers, TRAVEL_ADDONS),
-    travelPrice: formData.get(`event-price`)
-  };
+const destinationNames = (cities) => {
+  return cities.map((city) => city.name);
 };
 
 const createEventsChooserMurkup = (choosers, currentChooser) => {
@@ -60,16 +31,21 @@ const createCityOptions = (cities, citySelected) => {
   }).join(`\n`);
 };
 
+const isInArray = (item, array) => {
+  return array.some((it) => it.title === item.title);
+};
+
 const createOfferSelector = (selectors, selectorChosen) => {
   return selectors
   .map((selector) => {
+    const selectorRemark = selector.title.replace(/\s+/g, ``).toLowerCase();
     return (
       `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${selector.remark}-1" type="checkbox" name="event-offer-${selector.remark}" ${selectorChosen.includes(selector) ? `checked` : ``}>
-      <label class="event__offer-label" for="event-offer-${selector.remark}-1">
-        <span class="event__offer-title">${selector.name}</span>
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${selectorRemark}-1" type="checkbox" name="event-offer-${selectorRemark}" ${isInArray(selector, selectorChosen) ? `checked` : ``}>
+      <label class="event__offer-label" for="event-offer-${selectorRemark}-1">
+        <span class="event__offer-title">${selector.title}</span>
         &plus;
-        ${selector.currency};&nbsp;<span class="event__offer-price">${selector.price}</span>
+        ${CURRENCY}&nbsp;<span class="event__offer-price">${selector.price}</span>
       </label>
     </div>`
     );
@@ -80,12 +56,12 @@ const createPhotoTemplate = (photos) => {
   return photos
   .map((photo) => {
     return (
-      `<img class="event__photo" src="${photo}" alt="Event photo">`
+      `<img class="event__photo" src="${photo.src}" alt="${photo.description}">`
     );
   }).join(`\n`);
 };
 
-const createEventEditTemplate = (travelEvent, options = {}) => {
+const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
   const {travelPoints, destination, description, photos, travelPrice, travelAddons} = options;
   const {startDate, endDate, isFavorite} = travelEvent;
   const isBlockSaveButton = (!startDate || !endDate || !destination || !travelPrice);
@@ -118,7 +94,7 @@ const createEventEditTemplate = (travelEvent, options = {}) => {
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
             <datalist id="destination-list-1">
-              ${createCityOptions(TRAVEL_CITIES, destination)}
+              ${createCityOptions(destinationNames(travelCities), destination)}
             </datalist>
           </div>
 
@@ -159,13 +135,14 @@ const createEventEditTemplate = (travelEvent, options = {}) => {
         </header>
         ${destination ?
       `<section class="event__details">
-          <section class="event__section  event__section--offers">
+      ${travelOfs.length > 0 ?
+      `<section class="event__section  event__section--offers">
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
             <div class="event__available-offers">
-              ${createOfferSelector(TRAVEL_ADDONS, travelAddons)}
+              ${createOfferSelector(travelOfs, travelAddons)}
             </div>
-          </section>
-
+          </section>`
+      : ``}
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
             <p class="event__destination-description">${description}</p>
@@ -187,6 +164,7 @@ export default class ItemEdit extends AbstractSmartComponent {
   constructor(travelEvent) {
     super();
     this._event = travelEvent;
+    this._travelOffers = null;
     this._flatpickr = null;
     this._saveButtonHandler = null;
     this._favouriteButtonHandler = null;
@@ -195,9 +173,9 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._offers = travelEvent.travelAddons;
     this._travelPoints = travelEvent.travelPoints;
     this._isFavorite = travelEvent.isFavorite;
-    this._eventDestination = travelEvent.destination;
-    this._placeDescription = null;
-    this._placePhotos = null;
+    this._eventDestination = travelEvent.destination.name;
+    this._placeDescription = travelEvent.destination.description;
+    this._placePhotos = travelEvent.destination.pictures;
     this._travelPrice = travelEvent.travelPrice;
 
     this._applyFlatpickr();
@@ -205,7 +183,7 @@ export default class ItemEdit extends AbstractSmartComponent {
   }
 
   getTemplate() {
-    this._getPlaceDescription(TRAVEL_CITIES_WHOLE);
+    this._getTypeOffers(travelOffers);
     return createEventEditTemplate(this._event, {
       travelPoints: this._travelPoints,
       destination: this._eventDestination,
@@ -213,7 +191,7 @@ export default class ItemEdit extends AbstractSmartComponent {
       photos: this._placePhotos,
       travelAddons: this._offers,
       travelPrice: this._travelPrice,
-    });
+    }, this._travelOffers);
   }
 
   removeElement() {
@@ -236,6 +214,20 @@ export default class ItemEdit extends AbstractSmartComponent {
   rerender() {
     super.rerender();
     this._applyFlatpickr();
+  }
+
+  reset() {
+    const point = this._event;
+
+    this._travelPoints = point.travelPoints;
+    this._eventDestination = point.destination;
+    this._offers = point.travelAddons;
+    this._travelPrice = point.travelPrice;
+    this._startDate = point.startDate;
+    this._endDate = point.endDate;
+    this._getTypeOffers(travelOffers);
+
+    this.rerender();
   }
 
   setSaveButtonHandler(handler) {
@@ -264,8 +256,7 @@ export default class ItemEdit extends AbstractSmartComponent {
 
   getData() {
     const form = this.getElement().querySelector(`.event--edit`);
-    const formData = new FormData(form);
-    return parseFormData(formData);
+    return new FormData(form);
   }
 
   _applyFlatpickr() {
@@ -277,43 +268,48 @@ export default class ItemEdit extends AbstractSmartComponent {
     const dateTimes = this.getElement().querySelectorAll(`.event__input--time`);
     dateTimes.forEach((dateTime) => {
       this._flatpickr = flatpickr(dateTime, {
+        altInput: false,
+        minDate: `today`,
         allowInput: true,
         enableTime: true,
-        // time_24hr: true,
-        dateFormat: `d/m/Y H:m`,
+        time24hr: true,
+        dateFormat: `d/m/Y H:i`,
         defaultDate: dateTime.value,
       });
     });
   }
 
-  _getPlaceDescription(travelCities) {
+  _getPlaceDescription(cities) {
     this._eventDestination = this._eventDestination;
-    travelCities.forEach((travelCity) => {
-      if (travelCity.travelCity === this._eventDestination) {
+    cities.forEach((travelCity) => {
+      if (travelCity.name === this._eventDestination) {
         this._placeDescription = travelCity.description;
-        this._placePhotos = travelCity.photos;
+        this._placePhotos = travelCity.pictures;
       }
     });
   }
 
+  _getTypeOffers(travelOfs) {
+    this._travelPoints = this._travelPoints;
+    travelOfs.forEach((it) => {
+      if (it.type === this._travelPoints) {
+        this._travelOffers = it.offers;
+      } return this._travelOffers;
+    }); return this._travelOffers;
+  }
+
   _subscribeOnEvents() {
     const element = this.getElement();
-    const eventType = element.querySelector(`.event__type-group`);
+    const eventType = element.querySelector(`.event__type-list`);
     eventType.addEventListener(`change`, (evt) => {
       this._travelPoints = evt.target.value;
       this.rerender();
     });
 
     const eventDestination = element.querySelector(`.event__input--destination`);
-    TRAVEL_CITIES_WHOLE.forEach((travelCity) => {
-      if (travelCity.travelCity === this._eventDestination) {
-        this._placeDescription = travelCity.description;
-        this._placePhotos = travelCity.photos;
-      }
-    });
     eventDestination.addEventListener(`change`, () => {
       this._eventDestination = eventDestination.value;
-      this._getPlaceDescription(TRAVEL_CITIES_WHOLE);
+      this._getPlaceDescription(travelCities);
       this.rerender();
     });
   }
