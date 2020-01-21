@@ -55,14 +55,14 @@ const renderSingleDatesContainers = (place, array) => {
 
 
 export default class BoardController {
-  constructor(container, travelEvents, pointsModel, travelCities) {
+  constructor(container, travelEvents, pointsModel, api) {
     this._container = container;
     this._pointsModel = pointsModel;
     this._eventsControllers = [];
+    this._api = api;
     this._noEventsComponent = new NoEventsComponent();
     this._totalPriceComponent = new TotalPriceComponent(createArrayPrices(travelEvents));
     this._tripInfoComponent = new TripInfoElement(createArrayCities(travelEvents), createArrayStartDates(travelEvents), createArrayEndDates(travelEvents));
-    this._travelCities = travelCities;
     this._creatingPoint = null;
     this._sortingComponent = new SortingComponent();
     this._eventListComponent = new EventsListComponent();
@@ -199,11 +199,14 @@ export default class BoardController {
       this._pointsModel.removePoint(oldData.id);
       this._updatePoints();
     } else {
-      const isSuccess = this._pointsModel.updatePoint(oldData.id, newData);
-      if (isSuccess) {
-        eventsController.render(newData, PointControllerMode.DEFAULT);
-        this._updatePoints();
-      }
+      this._api.updatePoint(oldData.id, newData)
+        .then((pointModel) => {
+          const isSuccess = this._pointsModel.updatePoint(oldData.id, pointModel);
+          if (isSuccess) {
+            eventsController.render(pointModel, PointControllerMode.DEFAULT);
+            this._updatePoints();
+          }
+        });
     }
   }
 

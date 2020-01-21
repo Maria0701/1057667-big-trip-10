@@ -38,7 +38,7 @@ const isInArray = (item, array) => {
 const createOfferSelector = (selectors, selectorChosen) => {
   return selectors
   .map((selector) => {
-    const selectorRemark = selector.title.replace(` `, ``).toLowerCase();
+    const selectorRemark = selector.title.replace(/\s+/g, ``).toLowerCase();
     return (
       `<div class="event__offer-selector">
       <input class="event__offer-checkbox  visually-hidden" id="event-offer-${selectorRemark}-1" type="checkbox" name="event-offer-${selectorRemark}" ${isInArray(selector, selectorChosen) ? `checked` : ``}>
@@ -268,10 +268,12 @@ export default class ItemEdit extends AbstractSmartComponent {
     const dateTimes = this.getElement().querySelectorAll(`.event__input--time`);
     dateTimes.forEach((dateTime) => {
       this._flatpickr = flatpickr(dateTime, {
+        altInput: false,
+        minDate: `today`,
         allowInput: true,
         enableTime: true,
-        // time_24hr: true,
-        dateFormat: `d/m/Y H:m`,
+        time24hr: true,
+        dateFormat: `d/m/Y H:i`,
         defaultDate: dateTime.value,
       });
     });

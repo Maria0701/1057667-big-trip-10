@@ -41,8 +41,7 @@ const API = class {
       .then(Point.parsePoints);
   }
 
-  createPoint(point) {
-    console.log(point);
+  createPoint() {
   }
 
   updatePoint(id, data) {
@@ -56,8 +55,7 @@ const API = class {
     .then(Point.parsePoint);
   }
 
-  deletePoint(id) {
-    console.log(id);
+  deletePoint() {
   }
 
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {

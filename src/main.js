@@ -47,7 +47,7 @@ api.getOffers()
 
 api.getPoints()
     .then((points) => {
-      boardController = new TripController(boardComponent, points, pointsModel, travelCities);
+      boardController = new TripController(boardComponent, points, pointsModel, api);
       pointsModel.setPoints(points);
       boardController.render();
     });

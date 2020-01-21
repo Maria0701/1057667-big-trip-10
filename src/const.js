@@ -23,25 +23,6 @@ export const TRAVEL_ACTIVITY = [
   `restaurant`
 ];
 
-export const TRAVEL_ADDONS = [
-  {
-    title: `Add luggage`,
-    price: `10`,
-  },
-  {
-    title: `Switch to comfort class`,
-    price: `150`,
-  },
-  {
-    title: `Add meal`,
-    price: `2`,
-  },
-  {
-    title: `Choose seats`,
-    price: `9`,
-  }
-];
-
 export const FILTER_NAMES = [
   `everything`,
   `future`,

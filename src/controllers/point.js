@@ -18,21 +18,29 @@ const getOfferName = (name) => {
   return name.substring(OFFER_PREFIX.length);
 };
 
+const actualAddons = (offersAll, allAddons, type) => {
+  let actualOrders = [];
+  allAddons.forEach((item) => {
+    if (item.type === type) {
+      actualOrders = item.offers;
+    }
+  });
+  const nArray = [];
+  Array.from(offersAll).forEach((offer) => {
+    if (offer.checked) {
+      actualOrders.forEach((addon) => {
+        if (addon.title.replace(/\s+/g, ``).toLowerCase() === getOfferName(offer.name)) {
+          nArray.push(addon);
+        }
+      });
+    }
+  });
+  return nArray;
+};
+
 const parseFormData = (formData) => {
   const allOffers = document.querySelectorAll(`.event__offer-checkbox`);
-  const actualAddons = (offersAll, allAddons) => {
-    const nArray = [];
-    Array.from(offersAll).forEach((offer) => {
-      if (offer.checked) {
-        allAddons.forEach((addon) => {
-          if (addon.remark === getOfferName(offer.name)) {
-            nArray.push(addon);
-          }
-        });
-      }
-    });
-    return nArray;
-  };
+  const offerType = formData.get(`event-type`);
   const startDate = formData.get(`event-start-time`);
   const endDate = formData.get(`event-end-time`);
   let destination;
@@ -47,8 +55,8 @@ const parseFormData = (formData) => {
     'date_to': new Date(getToStringDateFormat(endDate)),
     'destination': destination,
     'is_favorite': false,
-    'offers': actualAddons(allOffers, travelOffers),
-    'type': formData.get(`event-type`),
+    'offers': actualAddons(allOffers, travelOffers, offerType),
+    'type': offerType,
   });
 };
 

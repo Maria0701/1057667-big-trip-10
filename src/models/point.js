@@ -10,7 +10,7 @@ export default class Point {
     this.isFavorite = Boolean(data[`is_favorite`]);
   }
 
-  toRaw() {
+  toRAW() {
     return {
       'id': this.id,
       'base_price': this.travelPrice,
