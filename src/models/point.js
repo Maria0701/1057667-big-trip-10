@@ -1,7 +1,7 @@
 export default class Point {
   constructor(data) {
     this.id = data [`id`];
-    this.travelPrice = data[`base_price`];
+    this.price = data[`base_price`];
     this.startDate = new Date(data[`date_from`]);
     this.endDate = new Date(data[`date_to`]);
     this.destination = data[`destination`];
@@ -12,7 +12,7 @@ export default class Point {
 
   toRAW() {
     return {
-      'base_price': Number(this.travelPrice),
+      'base_price': Number(this.price),
       'date_from': this.startDate.toISOString(),
       'date_to': this.endDate.toISOString(),
       'destination': this.destination,

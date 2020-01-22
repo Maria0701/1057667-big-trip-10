@@ -2,28 +2,37 @@ import AbstractComponent from './abstract-component.js';
 import moment from 'moment';
 
 const createArrayPrices = (array) => {
-  return array.map((it) => it.travelPrice);
+  return array.map((it) => it.price);
 };
+
+const addonsPrices = (data) => data.reduce((total, amount) => {
+  amount.travelAddons.forEach((price) => {
+    total.push(price);
+  });
+  return total;
+}, []);
 
 const pointsArrayDated = (points) => points.slice().sort((a, b) => a.startDate - b.startDate);
 
 const createTripInfo = (points) => {
-  const cityArray = pointsArrayDated(points);
-  const cities = cityArray.length !== 0 ? `${cityArray[0].destination.name}&mdash; ... &mdash; ${cityArray[cityArray.length - 1].destination.name}` : ``;
-
-  const getDatePeriod = () => {
-    const firstDate = moment(cityArray[0].startDate).format(`MMM DD`);
-    console.log(firstDate);
-    const lastDate = (moment(cityArray[0].startDate).isSame(cityArray[cityArray.length - 1].endDate, `month`) ? moment(cityArray[cityArray.length - 1].endDate).format(`DD`) : moment(cityArray[cityArray.length - 1].endDate).format(`MMM DD`)
-    );
-    return points.length === 0 ? `` : `${firstDate} - ${lastDate}`;
-  };
-
-  const priceArray = createArrayPrices(points);
   let totalPrice;
-  if (cityArray.length === 0) {
+  let getDatePeriod;
+  let cities;
+  if (points.length === 0) {
     totalPrice = 0;
+    getDatePeriod = ``;
+    cities = ``;
   } else {
+    const cityArray = pointsArrayDated(points);
+    cities = cityArray.length !== 0 ? `${cityArray[0].destination.name}&mdash; ... &mdash; ${cityArray[cityArray.length - 1].destination.name}` : ``;
+    getDatePeriod = () => {
+      const firstDate = moment(cityArray[0].startDate).format(`MMM DD`);
+      const lastDate = (moment(cityArray[0].startDate).isSame(cityArray[cityArray.length - 1].endDate, `month`) ? moment(cityArray[cityArray.length - 1].endDate).format(`DD`) : moment(cityArray[cityArray.length - 1].endDate).format(`MMM DD`)
+      );
+      return points.length === 0 ? `` : `${firstDate} - ${lastDate}`;
+    };
+
+    const priceArray = [...createArrayPrices(points), ...createArrayPrices(addonsPrices(points))];
     totalPrice = priceArray.reduce((sum, current) =>
       sum + current);
   }

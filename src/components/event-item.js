@@ -31,7 +31,7 @@ const generateTravelAddonMarkup = (addons) => {
 };
 
 const createEventItemTemplate = (travelEvent) => {
-  const {startDate, endDate, destination, travelPoints, travelPrice, travelAddons} = travelEvent;
+  const {startDate, endDate, destination, travelPoints, price, travelAddons} = travelEvent;
   return (
     `<li class="trip-events__item">
       <div class="event">
@@ -49,7 +49,7 @@ const createEventItemTemplate = (travelEvent) => {
         </div>
 
         <p class="event__price">
-          &euro;&nbsp;<span class="event__price-value">${travelPrice}</span>
+          &euro;&nbsp;<span class="event__price-value">${price}</span>
         </p>
 
         <h4 class="visually-hidden">Offers:</h4>

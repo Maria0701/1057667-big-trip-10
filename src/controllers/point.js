@@ -68,7 +68,7 @@ export const EmptyPoint = {
   endDate: new Date(),
   destination: ` `,
   travelPoints: TRAVEL_TRANSPORT[0],
-  travelPrice: ``,
+  price: ``,
   travelAddons: [],
   isFavorite: false,
 };

@@ -1,7 +1,6 @@
 import SortingComponent, {SortType} from '../components/sorting.js';
 import EventsListComponent from '../components/list.js';
 import DatesComponent from '../components/day-card.js';
-import TripInfoElement from '../components/trip-info.js';
 import NoEventsComponent from '../components/no-events.js';
 import {createArrayStartDates} from '../components/event-item.js';
 import {getDateWithoutMinutes, getTimeIso} from '../utils/common.js';
@@ -138,7 +137,7 @@ export default class BoardController {
         break;
       case SortType.PRICE_DOWN:
         sortedEvents = points.slice()
-            .sort((a, b) => b.travelPrice - a.travelPrice);
+            .sort((a, b) => b.price - a.price);
         break;
       case SortType.DEFAULT_EVENT:
         sortedEvents = points.slice()

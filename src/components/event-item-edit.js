@@ -67,11 +67,11 @@ const createPhotoTemplate = (photos) => {
 };
 
 const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
-  const {travelPoints, destination, description, photos, travelPrice, travelAddons, externalData, startDate, endDate} = options;
+  const {travelPoints, destination, description, photos, price, travelAddons, externalData, startDate, endDate} = options;
   const {isFavorite} = travelEvent;
   const travelCityNames = destinationNames(travelCities);
   const isValidCity = travelCityNames.includes(destination);
-  const isBlockSaveButton = (isValidCity && travelPrice > 0);
+  const isBlockSaveButton = (isValidCity && price > 0);
   const deleteButtonText = externalData.deleteButtonText;
   const saveButtonText = externalData.saveButtonText;
   return (
@@ -124,7 +124,7 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${travelPrice}">
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
           </div>
           <button class="event__save-btn  btn  btn--blue" type="submit" ${isBlockSaveButton ? `` : `disabled`}>${saveButtonText}</button>
           <button class="event__reset-btn" type="reset">${deleteButtonText}</button>
@@ -183,7 +183,7 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._eventDestination = travelEvent.destination.name;
     this._placeDescription = travelEvent.destination.description;
     this._placePhotos = travelEvent.destination.pictures;
-    this._travelPrice = travelEvent.travelPrice;
+    this._price = travelEvent.price;
     this._startDate = travelEvent.startDate;
     this._endDate = travelEvent.endDate;
     this._travelOffers = [];
@@ -202,7 +202,7 @@ export default class ItemEdit extends AbstractSmartComponent {
       description: this._placeDescription,
       photos: this._placePhotos,
       travelAddons: this._offers,
-      travelPrice: this._travelPrice,
+      price: this._price,
       externalData: this._externalData,
     }, this._travelOffers);
   }
@@ -235,7 +235,7 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._travelPoints = point.travelPoints;
     this._eventDestination = point.destination;
     this._offers = point.travelAddons;
-    this._travelPrice = point.travelPrice;
+    this._price = point.price;
     this._startDate = point.startDate;
     this._endDate = point.endDate;
     this._getTypeOffers(travelOffers);
@@ -326,7 +326,7 @@ export default class ItemEdit extends AbstractSmartComponent {
 
     const priceContainer = element.querySelector(`.event__input--price`);
     priceContainer.addEventListener(`change`, (evt) => {
-      this._travelPrice = evt.target.value;
+      this._price = evt.target.value;
       this.rerender();
     });
     const eventDestination = element.querySelector(`.event__input--destination`);

@@ -26,7 +26,7 @@ const calcPriceUniqueActivity = (points, activity) => {
   return points
   .filter((point) => point.travelPoints === activity)
   .reduce((total, point) =>
-    total + point.travelPrice, 0);
+    total + point.price, 0);
 };
 const getUpperCase = (lowerCaseArray) => lowerCaseArray.map((lowerCaseItem) =>lowerCaseItem.toUpperCase());
 
