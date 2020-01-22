@@ -10,7 +10,7 @@ export default class Point {
     this.isFavorite = Boolean(data[`is_favorite`]);
   }
 
-  toRAW() {
+  toRaw() {
     return {
       'base_price': Number(this.price),
       'date_from': this.startDate.toISOString(),

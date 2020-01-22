@@ -114,7 +114,6 @@ export default class TravelPoint {
     this._pointEditComponent.setFavouriteButtonHandler(() => {
       const newPoint = PointModel.clone(travelEvent);
       newPoint.isFavorite = !newPoint.isFavorite;
-
       this._onDataChange(this, travelEvent, newPoint);
     });
 

@@ -124,7 +124,7 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
+            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price}">
           </div>
           <button class="event__save-btn  btn  btn--blue" type="submit" ${isBlockSaveButton ? `` : `disabled`}>${saveButtonText}</button>
           <button class="event__reset-btn" type="reset">${deleteButtonText}</button>
@@ -286,7 +286,6 @@ export default class ItemEdit extends AbstractSmartComponent {
     const dateTimes = this.getElement().querySelectorAll(`.event__input--time`);
     dateTimes.forEach((dateTime) => {
       this._flatpickr = flatpickr(dateTime, {
-        minDate: `today`,
         altInput: true,
         altFormat: `d/m/Y H:i`,
         allowInput: true,

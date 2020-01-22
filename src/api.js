@@ -45,7 +45,7 @@ const API = class {
     return this._load({
       url: `points`,
       method: Method.POST,
-      body: JSON.stringify(point.toRAW()),
+      body: JSON.stringify(point.toRaw()),
       headers: new Headers({'Content-Type': `application/json`})
     })
     .then((response) => response.json())
@@ -56,7 +56,7 @@ const API = class {
     return this._load({
       url: `points/${id}`,
       method: Method.PUT,
-      body: JSON.stringify(data.toRAW()),
+      body: JSON.stringify(data.toRaw()),
       headers: new Headers({'Content-Type': `application/json`})
     })
     .then((response) => response.json())

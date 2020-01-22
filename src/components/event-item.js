@@ -17,7 +17,7 @@ export const createArrayCities = (array) => {
 
 const generateTravelAddonMarkup = (addons) => {
   return addons
-  .slice(0, 2)
+  .slice(0, 3)
   .map((addon) => {
     return (
       `<li class="event__offer">
