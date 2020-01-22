@@ -5,14 +5,13 @@ import Points from './models/points.js';
 import {RenderPosition, render} from './utils/render.js';
 import TripController from './controllers/board.js';
 import FilterController from './controllers/filter.js';
+import TripInfoController from './controllers/trip-info.js';
 import StatisticsComponent from './components/stats.js';
 const AUTHORIZATION = `Basic dXNlckBwY=`;
 const END_POINT = `https://htmlacademy-es-10.appspot.com/big-trip`;
 
 const api = new API(END_POINT, AUTHORIZATION);
 const pointsModel = new Points();
-let boardController;
-
 
 const siteMainElement = document.querySelector(`.page-body`);
 const siteHeaderElement = siteMainElement.querySelector(`.page-header__container`);
@@ -24,6 +23,13 @@ const filterController = new FilterController(mainTripControls, pointsModel);
 filterController.render();
 
 const boardComponent = new BoardComponent();
+const boardController = new TripController(boardComponent, pointsModel, api);
+
+const mainTripInfoElement = siteHeaderElement.querySelector(`.trip-main`);
+
+const tripInfoController = new TripInfoController(mainTripInfoElement, pointsModel);
+
+
 const boardPlace = siteMainElement.querySelector(`.page-main .page-body__container`);
 render(boardPlace, boardComponent, RenderPosition.BEFOREEND);
 
@@ -47,9 +53,9 @@ api.getOffers()
 
 api.getPoints()
     .then((points) => {
-      boardController = new TripController(boardComponent, points, pointsModel, api);
       pointsModel.setPoints(points);
       boardController.render();
+      tripInfoController.render();
     });
 
 siteMenuComponent.setOnChange((menuItem) => {

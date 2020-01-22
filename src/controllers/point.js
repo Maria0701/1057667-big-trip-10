@@ -53,8 +53,8 @@ const parseFormData = (formData) => {
   });
   return new PointModel({
     'base_price': formData.get(`event-price`),
-    'date_from': new Date(getToStringDateFormat(startDate)),
-    'date_to': new Date(getToStringDateFormat(endDate)),
+    'date_from': getToStringDateFormat(startDate),
+    'date_to': getToStringDateFormat(endDate),
     'destination': destination,
     'is_favorite': false,
     'offers': actualAddons(allOffers, travelOffers, offerType),
@@ -104,7 +104,6 @@ export default class TravelPoint {
       });
       const formData = this._pointEditComponent.getData();
       const data = parseFormData(formData);
-
       this._onDataChange(this, travelEvent, data);
     });
 

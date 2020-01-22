@@ -53,7 +53,6 @@ const API = class {
   }
 
   updatePoint(id, data) {
-    console.log(data.toRAW());
     return this._load({
       url: `points/${id}`,
       method: Method.PUT,

@@ -1,10 +1,9 @@
 import SortingComponent, {SortType} from '../components/sorting.js';
-import TotalPriceComponent from '../components/trip-info-cost.js';
 import EventsListComponent from '../components/list.js';
 import DatesComponent from '../components/day-card.js';
 import TripInfoElement from '../components/trip-info.js';
 import NoEventsComponent from '../components/no-events.js';
-import {createArrayStartDates, createArrayEndDates, createArrayCities, createArrayPrices} from '../components/event-item.js';
+import {createArrayStartDates} from '../components/event-item.js';
 import {getDateWithoutMinutes, getTimeIso} from '../utils/common.js';
 import {RenderPosition, render} from '../utils/render.js';
 import TravelPoint, {Mode as PointControllerMode, EmptyPoint} from './point.js';
@@ -55,14 +54,12 @@ const renderSingleDatesContainers = (place, array) => {
 
 
 export default class BoardController {
-  constructor(container, travelEvents, pointsModel, api) {
+  constructor(container, pointsModel, api) {
     this._container = container;
     this._pointsModel = pointsModel;
     this._eventsControllers = [];
     this._api = api;
     this._noEventsComponent = new NoEventsComponent();
-    this._totalPriceComponent = new TotalPriceComponent(createArrayPrices(travelEvents));
-    this._tripInfoComponent = new TripInfoElement(createArrayCities(travelEvents), createArrayStartDates(travelEvents), createArrayEndDates(travelEvents));
     this._creatingPoint = null;
     this._sortingComponent = new SortingComponent();
     this._eventListComponent = new EventsListComponent();
@@ -77,19 +74,11 @@ export default class BoardController {
   render() {
     const container = this._container.getElement();
     const points = this._pointsModel.getPoints();
-    const siteMainElement = document.querySelector(`.page-body`);
-    const siteHeaderElement = siteMainElement.querySelector(`.page-header`);
-    const mainTripInfoElement = siteHeaderElement.querySelector(`.trip-main__trip-info`);
 
     if (points.length === 0) {
       render(container, this._noEventsComponent, RenderPosition.BEFOREEND);
-      render(mainTripInfoElement, this._totalPriceComponent, RenderPosition.BEFOREEND);
       return;
     }
-
-    render(mainTripInfoElement, this._tripInfoComponent, RenderPosition.AFTERBEGIN);
-
-    render(mainTripInfoElement, this._totalPriceComponent, RenderPosition.BEFOREEND);
 
     render(container, this._sortingComponent, RenderPosition.BEFOREEND);
     render(container, this._eventListComponent, RenderPosition.BEFOREEND);
@@ -107,7 +96,7 @@ export default class BoardController {
       render(eventListComponent, tripEventsList, RenderPosition.AFTERBEGIN);
     }
     const tripEvt = tripEventsList.getElement().querySelector(`.trip-events__list`);
-    this._creatingPoint = new TravelPoint(tripEvt, this._onDataChange, this._onViewChange, this._travelCities);
+    this._creatingPoint = new TravelPoint(tripEvt, this._onDataChange, this._onViewChange);
     this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);
     this._eventsControllers = this._eventsControllers.concat(this._creatingPoint);
   }

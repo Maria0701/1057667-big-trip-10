@@ -14,9 +14,6 @@ export const createArrayCities = (array) => {
   return array.map((it) => it.destination.name);
 };
 
-export const createArrayPrices = (array) => {
-  return array.map((it) => it.travelPrice);
-};
 
 const generateTravelAddonMarkup = (addons) => {
   return addons

@@ -67,8 +67,8 @@ const createPhotoTemplate = (photos) => {
 };
 
 const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
-  const {travelPoints, destination, description, photos, travelPrice, travelAddons, externalData} = options;
-  const {startDate, endDate, isFavorite} = travelEvent;
+  const {travelPoints, destination, description, photos, travelPrice, travelAddons, externalData, startDate, endDate} = options;
+  const {isFavorite} = travelEvent;
   const travelCityNames = destinationNames(travelCities);
   const isValidCity = travelCityNames.includes(destination);
   const isBlockSaveButton = (isValidCity && travelPrice > 0);
@@ -184,6 +184,8 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._placeDescription = travelEvent.destination.description;
     this._placePhotos = travelEvent.destination.pictures;
     this._travelPrice = travelEvent.travelPrice;
+    this._startDate = travelEvent.startDate;
+    this._endDate = travelEvent.endDate;
     this._travelOffers = [];
     this._externalData = DefaultData;
     this._applyFlatpickr();
@@ -193,6 +195,8 @@ export default class ItemEdit extends AbstractSmartComponent {
   getTemplate() {
     this._getTypeOffers(travelOffers);
     return createEventEditTemplate(this._event, {
+      startDate: this._startDate,
+      endDate: this._endDate,
       travelPoints: this._travelPoints,
       destination: this._eventDestination,
       description: this._placeDescription,
@@ -241,7 +245,7 @@ export default class ItemEdit extends AbstractSmartComponent {
 
   setData(data) {
     this._externalData = Object.assign({}, DefaultData, data);
-    this.rerender();
+  //  this.rerender();
   }
 
   setSaveButtonHandler(handler) {
@@ -282,8 +286,9 @@ export default class ItemEdit extends AbstractSmartComponent {
     const dateTimes = this.getElement().querySelectorAll(`.event__input--time`);
     dateTimes.forEach((dateTime) => {
       this._flatpickr = flatpickr(dateTime, {
-        altInput: false,
         minDate: `today`,
+        altInput: true,
+        altFormat: `d/m/Y H:i`,
         allowInput: true,
         enableTime: true,
         time24hr: true,
@@ -324,7 +329,6 @@ export default class ItemEdit extends AbstractSmartComponent {
       this._travelPrice = evt.target.value;
       this.rerender();
     });
-
     const eventDestination = element.querySelector(`.event__input--destination`);
     eventDestination.addEventListener(`change`, () => {
       this._eventDestination = eventDestination.value;

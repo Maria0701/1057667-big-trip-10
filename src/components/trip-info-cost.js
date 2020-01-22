@@ -1,8 +1,13 @@
 import AbstractComponent from './abstract-component.js';
 
-const getPriceTotalTemplate = (priceArray) => {
+const createArrayPrices = (array) => {
+  return array._points.map((it) => it.travelPrice);
+};
+
+const getPriceTotalTemplate = (pointsArray) => {
+  const priceArray = createArrayPrices(pointsArray);
   let totalPrice;
-  if (priceArray.length === 0) {
+  if (pointsArray.length === 0) {
     totalPrice = 0;
   } else {
     totalPrice = priceArray.reduce((sum, current) =>
@@ -15,12 +20,12 @@ const getPriceTotalTemplate = (priceArray) => {
 };
 
 export default class TripCost extends AbstractComponent {
-  constructor(cost) {
+  constructor(points) {
     super();
-    this._cost = cost;
+    this._points = points;
   }
 
   getTemplate() {
-    return getPriceTotalTemplate(this._cost);
+    return getPriceTotalTemplate(this._points);
   }
 }
