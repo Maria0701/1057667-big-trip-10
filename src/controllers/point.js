@@ -1,7 +1,7 @@
 import EventComponent from '../components/event-item.js';
 import ItemEditComponent from '../components/event-item-edit.js';
 import {RenderPosition, render, replace, remove} from '../utils/render.js';
-import {TRAVEL_TRANSPORT} from '../const.js';
+import {TRAVEL_TRANSPORT, OFFER_PREFIX} from '../const.js';
 import {getToStringDateFormat} from '../utils/common.js';
 import {travelOffers, travelCities} from '../main.js';
 import PointModel from '../models/point.js';
@@ -13,8 +13,6 @@ export const Mode = {
   DEFAULT: `default`,
   EDIT: `edit`
 };
-
-const OFFER_PREFIX = `event-offer-`;
 
 const getOfferName = (name) => {
   return name.substring(OFFER_PREFIX.length);

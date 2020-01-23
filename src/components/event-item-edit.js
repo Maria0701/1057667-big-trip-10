@@ -44,10 +44,11 @@ const isInArray = (item, array) => {
 const createOfferSelector = (selectors, selectorChosen) => {
   return selectors
   .map((selector) => {
+    const isChecked = isInArray(selector, selectorChosen);
     const selectorRemark = selector.title.replace(/\s+/g, ``).toLowerCase();
     return (
       `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${selectorRemark}-1" type="checkbox" name="event-offer-${selectorRemark}" ${isInArray(selector, selectorChosen) ? `checked` : ``}>
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${selectorRemark}-1" type="checkbox" value="${selector.title}" name="event-offer-${selectorRemark}" ${isChecked ? `checked` : ``}>
       <label class="event__offer-label" for="event-offer-${selectorRemark}-1">
         <span class="event__offer-title">${selector.title}</span>
         &plus;
@@ -170,6 +171,8 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
     </li>`
   );
 };
+
+const getArrayOfActiveOffers = (array) => array.map((it) => it.title);
 
 export default class ItemEdit extends AbstractSmartComponent {
   constructor(travelEvent) {
@@ -348,6 +351,30 @@ export default class ItemEdit extends AbstractSmartComponent {
       this._startDate = getToStringDateFormat(evt.target.value);
       this.rerender();
     });
+
+    const availableOffers = element.querySelector(`.event__available-offers`);
+    if (availableOffers) {
+      availableOffers.addEventListener(`click`, (evt) => {
+        if (evt.target.tagName !== `INPUT`) {
+          return;
+        }
+        if (!getArrayOfActiveOffers(this._offers)
+        .includes(evt.target.value)) {
+          this._travelOffers.forEach((addon) => {
+            if (addon.title === evt.target.value) {
+              this._offers.push(addon);
+            }
+          });
+        } else {
+          this._offers.forEach((addon) => {
+            if (addon.title === evt.target.value) {
+              this._offers.splice(this._offers.indexOf(addon));
+            }
+          });
+        }
+        this.rerender();
+      });
+    }
 
     const endDateContainer = element.querySelector(`#event-end-time-1`);
     endDateContainer.addEventListener(`change`, (evt) => {

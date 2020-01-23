@@ -1,4 +1,4 @@
-
+export const OFFER_PREFIX = `event-offer-`;
 export const MILISECONDS = {
   MILISECONDS_IN_NINUTE: 1000 * 60,
   MILISECONDS_IN_HOURS: 1000 * 60 * 60,
