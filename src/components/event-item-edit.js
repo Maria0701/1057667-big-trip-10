@@ -1,5 +1,6 @@
 import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, CURRENCY, Placeholder} from '../const.js';
 import {getDateFormatEditor} from '../utils/common.js';
+import {getToStringDateFormat} from '../utils/common.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.css';
@@ -71,7 +72,9 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
   const {isFavorite} = travelEvent;
   const travelCityNames = destinationNames(travelCities);
   const isValidCity = travelCityNames.includes(destination);
-  const isBlockSaveButton = (isValidCity && price > 0);
+  const isValidprice = Number.isInteger(price);
+  const isValidDates = new Date(endDate) > new Date(startDate);
+  const isBlockSaveButton = (isValidCity && isValidprice && isValidDates);
   const deleteButtonText = externalData.deleteButtonText;
   const saveButtonText = externalData.saveButtonText;
   return (
@@ -124,7 +127,7 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price}">
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
           </div>
           <button class="event__save-btn  btn  btn--blue" type="submit" ${isBlockSaveButton ? `` : `disabled`}>${saveButtonText}</button>
           <button class="event__reset-btn" type="reset">${deleteButtonText}</button>
@@ -245,7 +248,18 @@ export default class ItemEdit extends AbstractSmartComponent {
 
   setData(data) {
     this._externalData = Object.assign({}, DefaultData, data);
-  //  this.rerender();
+
+    this.rerender();
+  }
+
+  setBlock(statement) {
+    const element = this.getElement();
+    element.querySelectorAll(`input`).forEach((it) => {
+      it.readOnly = statement;
+    });
+    element.querySelectorAll(`button`).forEach((it) => {
+      it.disabled = statement;
+    });
   }
 
   setSaveButtonHandler(handler) {
@@ -325,7 +339,19 @@ export default class ItemEdit extends AbstractSmartComponent {
 
     const priceContainer = element.querySelector(`.event__input--price`);
     priceContainer.addEventListener(`change`, (evt) => {
-      this._price = evt.target.value;
+      this._price = Math.floor(evt.target.value);
+      this.rerender();
+    });
+
+    const startDateContainer = element.querySelector(`#event-start-time-1`);
+    startDateContainer.addEventListener(`change`, (evt) => {
+      this._startDate = getToStringDateFormat(evt.target.value);
+      this.rerender();
+    });
+
+    const endDateContainer = element.querySelector(`#event-end-time-1`);
+    endDateContainer.addEventListener(`change`, (evt) => {
+      this._endDate = getToStringDateFormat(evt.target.value);
       this.rerender();
     });
     const eventDestination = element.querySelector(`.event__input--destination`);

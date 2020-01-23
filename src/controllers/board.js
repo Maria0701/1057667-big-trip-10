@@ -90,6 +90,12 @@ export default class BoardController {
       return;
     }
     const eventListComponent = this._eventListComponent.getElement();
+    if (!document.contains(this._eventListComponent.getElement())) {
+      const container = this._container.getElement();
+      container.innerHTML = ``;
+      render(container, this._sortingComponent, RenderPosition.BEFOREEND);
+      render(container, this._eventListComponent, RenderPosition.BEFOREEND);
+    }
     const tripEventsList = new DatesComponent();
     if (!document.contains(tripEventsList.getElement())) {
       render(eventListComponent, tripEventsList, RenderPosition.AFTERBEGIN);
@@ -108,7 +114,14 @@ export default class BoardController {
 
   _updatePoints() {
     this._removePoints();
-    this._renderPoints(this._pointsModel.getPoints().slice());
+    const points = this._pointsModel.getPoints();
+    this._renderPoints(points.slice());
+    if (points.length === 0) {
+      const container = this._container.getElement();
+      container.innerHTML = ``;
+      render(container, this._noEventsComponent, RenderPosition.BEFOREEND);
+      return;
+    }
   }
 
   _renderPoints(points, sortType = SortType.DEFAULT_EVENT) {

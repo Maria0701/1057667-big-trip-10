@@ -102,12 +102,16 @@ export default class TravelPoint {
       this._pointEditComponent.setData({
         saveButtonText: `Saving...`,
       });
+      this._pointEditComponent.setBlock(true);
       const formData = this._pointEditComponent.getData();
       const data = parseFormData(formData);
       this._onDataChange(this, travelEvent, data);
     });
 
     this._pointEditComponent.setRollUpHandler(() => {
+      if (this._mode === Mode.ADDING) {
+        return;
+      }
       this._replaceEditToEvent();
     });
 
@@ -121,6 +125,7 @@ export default class TravelPoint {
       this._pointEditComponent.setData({
         deleteButtonText: `Deleting...`,
       });
+      this._pointEditComponent.setBlock(true);
       this._onDataChange(this, travelEvent, null);
     });
 
@@ -168,6 +173,7 @@ export default class TravelPoint {
         saveButtonText: `Save`,
         deleteButtonText: `Delete`,
       }, ANIMATION_TIMEOUT);
+      this._pointEditComponent.setBlock(false);
     });
   }
 
