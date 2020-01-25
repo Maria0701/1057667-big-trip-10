@@ -1,10 +1,8 @@
 import SortingComponent, {SortType} from '../components/sorting.js';
-import TotalPriceComponent from '../components/trip-info-cost.js';
 import EventsListComponent from '../components/list.js';
 import DatesComponent from '../components/day-card.js';
-import TripInfoElement from '../components/trip-info.js';
 import NoEventsComponent from '../components/no-events.js';
-import {createArrayStartDates, createArrayEndDates, createArrayCities, createArrayPrices} from '../components/event-item.js';
+import {createArrayStartDates} from '../components/event-item.js';
 import {getDateWithoutMinutes, getTimeIso} from '../utils/common.js';
 import {RenderPosition, render} from '../utils/render.js';
 import TravelPoint, {Mode as PointControllerMode, EmptyPoint} from './point.js';
@@ -55,14 +53,12 @@ const renderSingleDatesContainers = (place, array) => {
 
 
 export default class BoardController {
-  constructor(container, travelEvents, pointsModel, api) {
+  constructor(container, pointsModel, api) {
     this._container = container;
     this._pointsModel = pointsModel;
     this._eventsControllers = [];
     this._api = api;
     this._noEventsComponent = new NoEventsComponent();
-    this._totalPriceComponent = new TotalPriceComponent(createArrayPrices(travelEvents));
-    this._tripInfoComponent = new TripInfoElement(createArrayCities(travelEvents), createArrayStartDates(travelEvents), createArrayEndDates(travelEvents));
     this._creatingPoint = null;
     this._sortingComponent = new SortingComponent();
     this._eventListComponent = new EventsListComponent();
@@ -77,19 +73,11 @@ export default class BoardController {
   render() {
     const container = this._container.getElement();
     const points = this._pointsModel.getPoints();
-    const siteMainElement = document.querySelector(`.page-body`);
-    const siteHeaderElement = siteMainElement.querySelector(`.page-header`);
-    const mainTripInfoElement = siteHeaderElement.querySelector(`.trip-main__trip-info`);
 
     if (points.length === 0) {
       render(container, this._noEventsComponent, RenderPosition.BEFOREEND);
-      render(mainTripInfoElement, this._totalPriceComponent, RenderPosition.BEFOREEND);
       return;
     }
-
-    render(mainTripInfoElement, this._tripInfoComponent, RenderPosition.AFTERBEGIN);
-
-    render(mainTripInfoElement, this._totalPriceComponent, RenderPosition.BEFOREEND);
 
     render(container, this._sortingComponent, RenderPosition.BEFOREEND);
     render(container, this._eventListComponent, RenderPosition.BEFOREEND);
@@ -102,12 +90,18 @@ export default class BoardController {
       return;
     }
     const eventListComponent = this._eventListComponent.getElement();
+    if (!document.contains(this._eventListComponent.getElement())) {
+      const container = this._container.getElement();
+      container.innerHTML = ``;
+      render(container, this._sortingComponent, RenderPosition.BEFOREEND);
+      render(container, this._eventListComponent, RenderPosition.BEFOREEND);
+    }
     const tripEventsList = new DatesComponent();
     if (!document.contains(tripEventsList.getElement())) {
       render(eventListComponent, tripEventsList, RenderPosition.AFTERBEGIN);
     }
     const tripEvt = tripEventsList.getElement().querySelector(`.trip-events__list`);
-    this._creatingPoint = new TravelPoint(tripEvt, this._onDataChange, this._onViewChange, this._travelCities);
+    this._creatingPoint = new TravelPoint(tripEvt, this._onDataChange, this._onViewChange);
     this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);
     this._eventsControllers = this._eventsControllers.concat(this._creatingPoint);
   }
@@ -120,7 +114,14 @@ export default class BoardController {
 
   _updatePoints() {
     this._removePoints();
-    this._renderPoints(this._pointsModel.getPoints().slice());
+    const points = this._pointsModel.getPoints();
+    this._renderPoints(points.slice());
+    if (points.length === 0) {
+      const container = this._container.getElement();
+      container.innerHTML = ``;
+      render(container, this._noEventsComponent, RenderPosition.BEFOREEND);
+      return;
+    }
   }
 
   _renderPoints(points, sortType = SortType.DEFAULT_EVENT) {
@@ -149,7 +150,7 @@ export default class BoardController {
         break;
       case SortType.PRICE_DOWN:
         sortedEvents = points.slice()
-            .sort((a, b) => b.travelPrice - a.travelPrice);
+            .sort((a, b) => b.price - a.price);
         break;
       case SortType.DEFAULT_EVENT:
         sortedEvents = points.slice()
@@ -186,18 +187,30 @@ export default class BoardController {
         eventsController.destroy();
         this._updatePoints();
       } else {
-        this._pointsModel.addPoint(newData);
-        eventsController.render(newData, PointControllerMode.DEFAULT);
+        this._api.createPoint(newData)
+          .then((pointModel) => {
+            this._pointsModel.addPoint(pointModel);
+            eventsController.render(pointModel, PointControllerMode.DEFAULT);
 
-        const destroyedPoint = this._eventsControllers.pop();
-        destroyedPoint.destroy();
+            const destroyedPoint = this._eventsControllers.pop();
+            destroyedPoint.destroy();
 
-        this._eventsControllers = [].concat(eventsController, this._eventsControllers);
-        this._updatePoints();
+            this._eventsControllers = [].concat(eventsController, this._eventsControllers);
+            this._updatePoints();
+          })
+          .catch(() => {
+            eventsController.animateEvent();
+          });
       }
     } else if (newData === null) {
-      this._pointsModel.removePoint(oldData.id);
-      this._updatePoints();
+      this._api.deletePoint(oldData.id)
+        .then(() => {
+          this._pointsModel.removePoint(oldData.id);
+          this._updatePoints();
+        })
+        .catch(() => {
+          eventsController.animateEvent();
+        });
     } else {
       this._api.updatePoint(oldData.id, newData)
         .then((pointModel) => {
@@ -206,6 +219,9 @@ export default class BoardController {
             eventsController.render(pointModel, PointControllerMode.DEFAULT);
             this._updatePoints();
           }
+        })
+        .catch(() => {
+          eventsController.animateEvent();
         });
     }
   }

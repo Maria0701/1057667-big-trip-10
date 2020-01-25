@@ -26,6 +26,23 @@ main {
   margin: -1px;
   border: 0; }
 
+@keyframes opacity {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  20%,
+  60%{
+    opacity: 0.8;
+  }
+
+  40%,
+  80% {
+    opacity: 0.6;
+  }
+}
+
 .page-body {
   display: -ms-flexbox;
   display: flex;
@@ -930,3 +947,7 @@ main {
 
 .statistics__item:not(:last-child) {
   margin-bottom: 78px; }
+
+.shake {
+  animation: opacity 3s;
+}

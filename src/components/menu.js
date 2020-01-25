@@ -11,9 +11,7 @@ const ACTIVE_ITEM = `trip-tabs__btn--active`;
 const createMenuTemplate = () => {
   return (
     `<div class="trip-main">
-      <section class="trip-main__trip-info  trip-info">
         <!-- Маршрут -->
-      </section>
 
       <div class="trip-main__trip-controls  trip-controls">
         <h2 class="visually-hidden">Switch trip view</h2>

@@ -1,18 +1,18 @@
 import EventComponent from '../components/event-item.js';
 import ItemEditComponent from '../components/event-item-edit.js';
 import {RenderPosition, render, replace, remove} from '../utils/render.js';
-import {TRAVEL_TRANSPORT} from '../const.js';
+import {TRAVEL_TRANSPORT, OFFER_PREFIX} from '../const.js';
 import {getToStringDateFormat} from '../utils/common.js';
 import {travelOffers, travelCities} from '../main.js';
 import PointModel from '../models/point.js';
+
+const ANIMATION_TIMEOUT = 10000;
 
 export const Mode = {
   ADDING: `adding`,
   DEFAULT: `default`,
   EDIT: `edit`
 };
-
-const OFFER_PREFIX = `event-offer-`;
 
 const getOfferName = (name) => {
   return name.substring(OFFER_PREFIX.length);
@@ -51,8 +51,8 @@ const parseFormData = (formData) => {
   });
   return new PointModel({
     'base_price': formData.get(`event-price`),
-    'date_from': new Date(getToStringDateFormat(startDate)),
-    'date_to': new Date(getToStringDateFormat(endDate)),
+    'date_from': getToStringDateFormat(startDate),
+    'date_to': getToStringDateFormat(endDate),
     'destination': destination,
     'is_favorite': false,
     'offers': actualAddons(allOffers, travelOffers, offerType),
@@ -64,9 +64,9 @@ const parseFormData = (formData) => {
 export const EmptyPoint = {
   startDate: new Date(),
   endDate: new Date(),
-  destination: ``,
+  destination: ` `,
   travelPoints: TRAVEL_TRANSPORT[0],
-  travelPrice: ``,
+  price: ``,
   travelAddons: [],
   isFavorite: false,
 };
@@ -97,24 +97,35 @@ export default class TravelPoint {
 
     this._pointEditComponent.setSaveButtonHandler((evt) => {
       evt.preventDefault();
+      this._pointEditComponent.setData({
+        saveButtonText: `Saving...`,
+      });
+      this._pointEditComponent.setBlock(true);
       const formData = this._pointEditComponent.getData();
       const data = parseFormData(formData);
-
       this._onDataChange(this, travelEvent, data);
     });
 
     this._pointEditComponent.setRollUpHandler(() => {
+      if (this._mode === Mode.ADDING) {
+        return;
+      }
       this._replaceEditToEvent();
     });
 
     this._pointEditComponent.setFavouriteButtonHandler(() => {
       const newPoint = PointModel.clone(travelEvent);
       newPoint.isFavorite = !newPoint.isFavorite;
-
       this._onDataChange(this, travelEvent, newPoint);
     });
 
-    this._pointEditComponent.setDeleteButtonClickHandler(() => this._onDataChange(this, travelEvent, null));
+    this._pointEditComponent.setDeleteButtonClickHandler(() => {
+      this._pointEditComponent.setData({
+        deleteButtonText: `Deleting...`,
+      });
+      this._pointEditComponent.setBlock(true);
+      this._onDataChange(this, travelEvent, null);
+    });
 
     switch (mode) {
       case Mode.DEFAULT:
@@ -148,6 +159,20 @@ export default class TravelPoint {
     remove(this._pointComponent);
     remove(this._pointEditComponent);
     document.removeEventListener(`keydown`, this._onEscKeyDown);
+  }
+
+  animateEvent() {
+    this._pointEditComponent.getElement().style.animation = `opacity ${ANIMATION_TIMEOUT / 1000}s`;
+
+    setTimeout(() => {
+      this._pointEditComponent.getElement().style.animation = ``;
+
+      this._pointEditComponent.setData({
+        saveButtonText: `Save`,
+        deleteButtonText: `Delete`,
+      }, ANIMATION_TIMEOUT);
+      this._pointEditComponent.setBlock(false);
+    });
   }
 
   _replaceEventToEdit() {

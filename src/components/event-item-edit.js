@@ -1,9 +1,15 @@
 import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, CURRENCY, Placeholder} from '../const.js';
 import {getDateFormatEditor} from '../utils/common.js';
+import {getToStringDateFormat} from '../utils/common.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import {travelOffers, travelCities} from '../main.js';
+
+const DefaultData = {
+  deleteButtonText: `Delete`,
+  saveButtonText: `Save`,
+};
 
 const destinationNames = (cities) => {
   return cities.map((city) => city.name);
@@ -38,10 +44,11 @@ const isInArray = (item, array) => {
 const createOfferSelector = (selectors, selectorChosen) => {
   return selectors
   .map((selector) => {
+    const isChecked = isInArray(selector, selectorChosen);
     const selectorRemark = selector.title.replace(/\s+/g, ``).toLowerCase();
     return (
       `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${selectorRemark}-1" type="checkbox" name="event-offer-${selectorRemark}" ${isInArray(selector, selectorChosen) ? `checked` : ``}>
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${selectorRemark}-1" type="checkbox" value="${selector.title}" name="event-offer-${selectorRemark}" ${isChecked ? `checked` : ``}>
       <label class="event__offer-label" for="event-offer-${selectorRemark}-1">
         <span class="event__offer-title">${selector.title}</span>
         &plus;
@@ -62,9 +69,15 @@ const createPhotoTemplate = (photos) => {
 };
 
 const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
-  const {travelPoints, destination, description, photos, travelPrice, travelAddons} = options;
-  const {startDate, endDate, isFavorite} = travelEvent;
-  const isBlockSaveButton = (!startDate || !endDate || !destination || !travelPrice);
+  const {travelPoints, destination, description, photos, price, travelAddons, externalData, startDate, endDate} = options;
+  const {isFavorite} = travelEvent;
+  const travelCityNames = destinationNames(travelCities);
+  const isValidCity = travelCityNames.includes(destination);
+  const isValidprice = Number.isInteger(price);
+  const isValidDates = new Date(endDate) > new Date(startDate);
+  const isBlockSaveButton = (isValidCity && isValidprice && isValidDates);
+  const deleteButtonText = externalData.deleteButtonText;
+  const saveButtonText = externalData.saveButtonText;
   return (
     `<li class="trip-events__item">
       <form class="event  event--edit" action="#" method="post">
@@ -92,9 +105,9 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${travelPoints} ${TRAVEL_TRANSPORT.includes(travelPoints) ? Placeholder.TRANSPORT : Placeholder.ACTION}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination ? destination : ``}" list="destination-list-1">
             <datalist id="destination-list-1">
-              ${createCityOptions(destinationNames(travelCities), destination)}
+              ${createCityOptions(travelCityNames, destination)}
             </datalist>
           </div>
 
@@ -115,11 +128,10 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${travelPrice}">
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
           </div>
-
-          <button class="event__save-btn  btn  btn--blue" type="submit" ${isBlockSaveButton ? `disabled` : ``}>Save</button>
-          <button class="event__reset-btn" type="reset">Delete</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${isBlockSaveButton ? `` : `disabled`}>${saveButtonText}</button>
+          <button class="event__reset-btn" type="reset">${deleteButtonText}</button>
 
           <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
           <label class="event__favorite-btn" for="event-favorite-1">
@@ -160,11 +172,12 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
   );
 };
 
+const getArrayOfActiveOffers = (array) => array.map((it) => it.title);
+
 export default class ItemEdit extends AbstractSmartComponent {
   constructor(travelEvent) {
     super();
     this._event = travelEvent;
-    this._travelOffers = null;
     this._flatpickr = null;
     this._saveButtonHandler = null;
     this._favouriteButtonHandler = null;
@@ -176,8 +189,11 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._eventDestination = travelEvent.destination.name;
     this._placeDescription = travelEvent.destination.description;
     this._placePhotos = travelEvent.destination.pictures;
-    this._travelPrice = travelEvent.travelPrice;
-
+    this._price = travelEvent.price;
+    this._startDate = travelEvent.startDate;
+    this._endDate = travelEvent.endDate;
+    this._travelOffers = [];
+    this._externalData = DefaultData;
     this._applyFlatpickr();
     this._subscribeOnEvents();
   }
@@ -185,12 +201,15 @@ export default class ItemEdit extends AbstractSmartComponent {
   getTemplate() {
     this._getTypeOffers(travelOffers);
     return createEventEditTemplate(this._event, {
+      startDate: this._startDate,
+      endDate: this._endDate,
       travelPoints: this._travelPoints,
       destination: this._eventDestination,
       description: this._placeDescription,
       photos: this._placePhotos,
       travelAddons: this._offers,
-      travelPrice: this._travelPrice,
+      price: this._price,
+      externalData: this._externalData,
     }, this._travelOffers);
   }
 
@@ -222,12 +241,28 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._travelPoints = point.travelPoints;
     this._eventDestination = point.destination;
     this._offers = point.travelAddons;
-    this._travelPrice = point.travelPrice;
+    this._price = point.price;
     this._startDate = point.startDate;
     this._endDate = point.endDate;
     this._getTypeOffers(travelOffers);
 
     this.rerender();
+  }
+
+  setData(data) {
+    this._externalData = Object.assign({}, DefaultData, data);
+
+    this.rerender();
+  }
+
+  setBlock(statement) {
+    const element = this.getElement();
+    element.querySelectorAll(`input`).forEach((it) => {
+      it.readOnly = statement;
+    });
+    element.querySelectorAll(`button`).forEach((it) => {
+      it.disabled = statement;
+    });
   }
 
   setSaveButtonHandler(handler) {
@@ -268,8 +303,8 @@ export default class ItemEdit extends AbstractSmartComponent {
     const dateTimes = this.getElement().querySelectorAll(`.event__input--time`);
     dateTimes.forEach((dateTime) => {
       this._flatpickr = flatpickr(dateTime, {
-        altInput: false,
-        minDate: `today`,
+        altInput: true,
+        altFormat: `d/m/Y H:i`,
         allowInput: true,
         enableTime: true,
         time24hr: true,
@@ -290,7 +325,6 @@ export default class ItemEdit extends AbstractSmartComponent {
   }
 
   _getTypeOffers(travelOfs) {
-    this._travelPoints = this._travelPoints;
     travelOfs.forEach((it) => {
       if (it.type === this._travelPoints) {
         this._travelOffers = it.offers;
@@ -306,6 +340,47 @@ export default class ItemEdit extends AbstractSmartComponent {
       this.rerender();
     });
 
+    const priceContainer = element.querySelector(`.event__input--price`);
+    priceContainer.addEventListener(`change`, (evt) => {
+      this._price = Math.floor(evt.target.value);
+      this.rerender();
+    });
+
+    const startDateContainer = element.querySelector(`#event-start-time-1`);
+    startDateContainer.addEventListener(`change`, (evt) => {
+      this._startDate = getToStringDateFormat(evt.target.value);
+      this.rerender();
+    });
+
+    const availableOffers = element.querySelector(`.event__available-offers`);
+    if (availableOffers) {
+      availableOffers.addEventListener(`click`, (evt) => {
+        if (evt.target.tagName !== `INPUT`) {
+          return;
+        }
+        if (!getArrayOfActiveOffers(this._offers)
+        .includes(evt.target.value)) {
+          this._travelOffers.forEach((addon) => {
+            if (addon.title === evt.target.value) {
+              this._offers.push(addon);
+            }
+          });
+        } else {
+          this._offers.forEach((addon) => {
+            if (addon.title === evt.target.value) {
+              this._offers.splice(this._offers.indexOf(addon));
+            }
+          });
+        }
+        this.rerender();
+      });
+    }
+
+    const endDateContainer = element.querySelector(`#event-end-time-1`);
+    endDateContainer.addEventListener(`change`, (evt) => {
+      this._endDate = getToStringDateFormat(evt.target.value);
+      this.rerender();
+    });
     const eventDestination = element.querySelector(`.event__input--destination`);
     eventDestination.addEventListener(`change`, () => {
       this._eventDestination = eventDestination.value;

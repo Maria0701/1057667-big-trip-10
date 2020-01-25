@@ -14,13 +14,10 @@ export const createArrayCities = (array) => {
   return array.map((it) => it.destination.name);
 };
 
-export const createArrayPrices = (array) => {
-  return array.map((it) => it.travelPrice);
-};
 
 const generateTravelAddonMarkup = (addons) => {
   return addons
-  .slice(0, 2)
+  .slice(0, 3)
   .map((addon) => {
     return (
       `<li class="event__offer">
@@ -34,7 +31,7 @@ const generateTravelAddonMarkup = (addons) => {
 };
 
 const createEventItemTemplate = (travelEvent) => {
-  const {startDate, endDate, destination, travelPoints, travelPrice, travelAddons} = travelEvent;
+  const {startDate, endDate, destination, travelPoints, price, travelAddons} = travelEvent;
   return (
     `<li class="trip-events__item">
       <div class="event">
@@ -52,7 +49,7 @@ const createEventItemTemplate = (travelEvent) => {
         </div>
 
         <p class="event__price">
-          &euro;&nbsp;<span class="event__price-value">${travelPrice}</span>
+          &euro;&nbsp;<span class="event__price-value">${price}</span>
         </p>
 
         <h4 class="visually-hidden">Offers:</h4>
