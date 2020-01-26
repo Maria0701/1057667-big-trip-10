@@ -1,6 +1,5 @@
 import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, CURRENCY, Placeholder} from '../const.js';
-import {getDateFormatEditor} from '../utils/common.js';
-import {getToStringDateFormat} from '../utils/common.js';
+import {getDateFormatEditor, getToStringDateFormat, debounce} from '../utils/common.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.css';
@@ -178,11 +177,6 @@ export default class ItemEdit extends AbstractSmartComponent {
   constructor(travelEvent) {
     super();
     this._event = travelEvent;
-    this._flatpickr = null;
-    this._saveButtonHandler = null;
-    this._favouriteButtonHandler = null;
-    this._rollUpHandler = null;
-    this._deleteButtonHandler = null;
     this._offers = travelEvent.travelAddons;
     this._travelPoints = travelEvent.travelPoints;
     this._isFavorite = travelEvent.isFavorite;
@@ -194,6 +188,12 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._endDate = travelEvent.endDate;
     this._travelOffers = [];
     this._externalData = DefaultData;
+    this._flatpickrStart = null;
+    this._flatpickrEnd = null;
+    this._saveButtonHandler = null;
+    this._favouriteButtonHandler = null;
+    this._rollUpHandler = null;
+    this._deleteButtonHandler = null;
     this._applyFlatpickr();
     this._subscribeOnEvents();
   }
@@ -214,9 +214,13 @@ export default class ItemEdit extends AbstractSmartComponent {
   }
 
   removeElement() {
-    if (this._flatpickr) {
-      this._flatpickr.destroy();
-      this._flatpickr = null;
+    if (this._flatpickrStart) {
+      this._flatpickrStart.destroy();
+      this._flatpickrStart = null;
+    }
+    if (this._flatpickrEnd) {
+      this._flatpickrEnd.destroy();
+      this._flatpickrEnd = null;
     }
 
     super.removeElement();
@@ -237,21 +241,20 @@ export default class ItemEdit extends AbstractSmartComponent {
 
   reset() {
     const point = this._event;
-
     this._travelPoints = point.travelPoints;
-    this._eventDestination = point.destination;
+    this._eventDestination = point.destination.name;
+    this._description = point.destination.description;
+    this._placePhotos = point.destination.pictures;
     this._offers = point.travelAddons;
     this._price = point.price;
     this._startDate = point.startDate;
     this._endDate = point.endDate;
     this._getTypeOffers(travelOffers);
-
     this.rerender();
   }
 
   setData(data) {
     this._externalData = Object.assign({}, DefaultData, data);
-
     this.rerender();
   }
 
@@ -279,7 +282,7 @@ export default class ItemEdit extends AbstractSmartComponent {
 
   setFavouriteButtonHandler(handler) {
     this.getElement().querySelector(`.event__favorite-checkbox`)
-    .addEventListener(`click`, handler);
+    .addEventListener(`click`, debounce(handler, 2000, this));
     this._favouriteButtonHandler = handler;
   }
 
@@ -295,22 +298,44 @@ export default class ItemEdit extends AbstractSmartComponent {
   }
 
   _applyFlatpickr() {
-    if (this._flatpickr) {
-      this._flatpickr.destroy();
-      this._flatpick = null;
+    if (this._flatpickrStart) {
+      this._flatpickrStart.destroy();
+      this._flatpickrStart = null;
     }
+    const startTimes = this.getElement().querySelector(`#event-start-time-1`);
+    this._flatpickrStart = flatpickr(startTimes, {
+      allowInput: true,
+      enableTime: true,
+      minDate: ``,
+      time24hr: true,
+      dateFormat: `d/m/Y H:i`,
+      defaultDate: startTimes.value,
+      onChange: ((selectedDates, dateStr) => {
+        this._startDate = getToStringDateFormat(dateStr);
+      }),
+      onClose: (() => {
+        this.rerender();
+      })
+    });
 
-    const dateTimes = this.getElement().querySelectorAll(`.event__input--time`);
-    dateTimes.forEach((dateTime) => {
-      this._flatpickr = flatpickr(dateTime, {
-        altInput: true,
-        altFormat: `d/m/Y H:i`,
-        allowInput: true,
-        enableTime: true,
-        time24hr: true,
-        dateFormat: `d/m/Y H:i`,
-        defaultDate: dateTime.value,
-      });
+    const endTimes = this.getElement().querySelectorAll(`#event-end-time-1`);
+    if (this._flatpickrEnd) {
+      this._flatpickrEnd.destroy();
+      this._flatpickrEnd = null;
+    }
+    this._flatpickrEnd = flatpickr(endTimes, {
+      allowInput: true,
+      enableTime: true,
+      minDate: this._startDate,
+      time24hr: true,
+      dateFormat: `d/m/Y H:i`,
+      defaultDate: endTimes.value,
+      onChange: ((selectedDates, dateStr) => {
+        this._endDate = getToStringDateFormat(dateStr);
+      }),
+      onClose: (() => {
+        this.rerender();
+      })
     });
   }
 
@@ -333,22 +358,18 @@ export default class ItemEdit extends AbstractSmartComponent {
   }
 
   _subscribeOnEvents() {
+
     const element = this.getElement();
     const eventType = element.querySelector(`.event__type-list`);
     eventType.addEventListener(`change`, (evt) => {
       this._travelPoints = evt.target.value;
+      this._offers = [];
       this.rerender();
     });
 
     const priceContainer = element.querySelector(`.event__input--price`);
     priceContainer.addEventListener(`change`, (evt) => {
       this._price = Math.floor(evt.target.value);
-      this.rerender();
-    });
-
-    const startDateContainer = element.querySelector(`#event-start-time-1`);
-    startDateContainer.addEventListener(`change`, (evt) => {
-      this._startDate = getToStringDateFormat(evt.target.value);
       this.rerender();
     });
 
@@ -366,21 +387,13 @@ export default class ItemEdit extends AbstractSmartComponent {
             }
           });
         } else {
-          this._offers.forEach((addon) => {
-            if (addon.title === evt.target.value) {
-              this._offers.splice(this._offers.indexOf(addon));
-            }
-          });
+          const index = this._offers.findIndex((it) => it.title === evt.target.value);
+          this._offers = [].concat(this._offers.slice(0, index), this._offers.slice(index + 1));
         }
         this.rerender();
       });
     }
 
-    const endDateContainer = element.querySelector(`#event-end-time-1`);
-    endDateContainer.addEventListener(`change`, (evt) => {
-      this._endDate = getToStringDateFormat(evt.target.value);
-      this.rerender();
-    });
     const eventDestination = element.querySelector(`.event__input--destination`);
     eventDestination.addEventListener(`change`, () => {
       this._eventDestination = eventDestination.value;

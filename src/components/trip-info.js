@@ -31,7 +31,13 @@ const createTripInfo = (points) => {
     cities = ``;
   } else {
     const cityArray = pointsArrayDated(points);
-    cities = cityArray.length !== 0 ? `${cityArray[0].destination.name}&mdash; ... &mdash; ${cityArray[cityArray.length - 1].destination.name}` : ``;
+    const getCityNames = (array) => {
+      if (array.length > 3) {
+        return `${array[0].destination.name}&mdash; ... &mdash; ${array[array.length - 1].destination.name}`;
+      }
+      return `${array.map((city) => city.destination.name).join(` - `)}`;
+    };
+    cities = getCityNames(cityArray);
 
     datePeriod = getDatePeriod(cityArray);
     const priceArray = [...createArrayPrices(points), ...createArrayPrices(addonsPrices(points))];
