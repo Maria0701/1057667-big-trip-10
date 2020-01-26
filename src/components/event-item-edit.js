@@ -241,7 +241,6 @@ export default class ItemEdit extends AbstractSmartComponent {
 
   reset() {
     const point = this._event;
-
     this._travelPoints = point.travelPoints;
     this._eventDestination = point.destination.name;
     this._description = point.destination.description;
@@ -251,13 +250,11 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._startDate = point.startDate;
     this._endDate = point.endDate;
     this._getTypeOffers(travelOffers);
-
     this.rerender();
   }
 
   setData(data) {
     this._externalData = Object.assign({}, DefaultData, data);
-
     this.rerender();
   }
 
@@ -305,11 +302,7 @@ export default class ItemEdit extends AbstractSmartComponent {
       this._flatpickrStart.destroy();
       this._flatpickrStart = null;
     }
-
-
-    const endTimes = this.getElement().querySelectorAll(`#event-end-time-1`);
     const startTimes = this.getElement().querySelector(`#event-start-time-1`);
-
     this._flatpickrStart = flatpickr(startTimes, {
       allowInput: true,
       enableTime: true,
@@ -325,6 +318,7 @@ export default class ItemEdit extends AbstractSmartComponent {
       })
     });
 
+    const endTimes = this.getElement().querySelectorAll(`#event-end-time-1`);
     if (this._flatpickrEnd) {
       this._flatpickrEnd.destroy();
       this._flatpickrEnd = null;
@@ -364,6 +358,7 @@ export default class ItemEdit extends AbstractSmartComponent {
   }
 
   _subscribeOnEvents() {
+
     const element = this.getElement();
     const eventType = element.querySelector(`.event__type-list`);
     eventType.addEventListener(`change`, (evt) => {
@@ -377,7 +372,6 @@ export default class ItemEdit extends AbstractSmartComponent {
       this._price = Math.floor(evt.target.value);
       this.rerender();
     });
-
 
     const availableOffers = element.querySelector(`.event__available-offers`);
     if (availableOffers) {

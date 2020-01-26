@@ -109,22 +109,24 @@ export default class BoardController {
   _removePoints() {
     const eventListComponent = this._eventListComponent.getElement();
     eventListComponent.innerHTML = ``;
+    this._eventsControllers.forEach((pointController) => pointController.destroy());
     this._eventsControllers = [];
   }
 
   _updatePoints() {
-    this._removePoints();
     const points = this._pointsModel.getPoints();
-    this._renderPoints(points.slice());
     if (points.length === 0) {
       const container = this._container.getElement();
       container.innerHTML = ``;
       render(container, this._noEventsComponent, RenderPosition.BEFOREEND);
       return;
     }
+    this._removePoints();
+    this._renderPoints(points.slice());
   }
 
   _renderPoints(points, sortType = SortType.DEFAULT_EVENT) {
+    this._removePoints();
     const eventListComponent = this._eventListComponent.getElement();
     let tripEventsLists;
     if (sortType === SortType.DEFAULT_EVENT) {
@@ -135,9 +137,9 @@ export default class BoardController {
       tripEventsLists = eventListComponent.querySelector(`.trip-events__list`);
     }
 
-    const newEvents = renderEvents(eventListComponent, tripEventsLists, points, this._onDataChange, this._onViewChange, this._travelCities);
+    const newEvents = renderEvents(eventListComponent, tripEventsLists, points, this._onDataChange, this._onViewChange);
 
-    this._eventsControllers = this._eventsControllers.concat(newEvents);
+    this._eventsControllers = [...this._eventsControllers, ...newEvents];
   }
 
   _onSortChange(sortType) {
@@ -173,8 +175,8 @@ export default class BoardController {
   _onViewChange() {
     this._eventsControllers.forEach((it) => {
       if (it === this._creatingPoint) {
-        it.destroy();
         this._creatingPoint = null;
+        it.destroy();
       }
       return it.setDefaultView();
     });
@@ -195,7 +197,7 @@ export default class BoardController {
             const destroyedPoint = this._eventsControllers.pop();
             destroyedPoint.destroy();
 
-            this._eventsControllers = [].concat(eventsController, this._eventsControllers);
+            this._eventsControllers = [...eventsController, ...this._eventsControllers];
             this._updatePoints();
           })
           .catch(() => {
