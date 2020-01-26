@@ -43,3 +43,11 @@ export const getDateWithoutMinutes = (date) => {
   clearDate = clearDate.setHours(0, 0, 0, 0);
   return clearDate;
 };
+
+export const debounce = (callback, wait, context) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => callback.apply(context, args), wait);
+  };
+};

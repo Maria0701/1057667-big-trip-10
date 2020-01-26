@@ -6,7 +6,7 @@ import {getToStringDateFormat} from '../utils/common.js';
 import {travelOffers, travelCities} from '../main.js';
 import PointModel from '../models/point.js';
 
-const ANIMATION_TIMEOUT = 10000;
+const ANIMATION_TIMEOUT = 5000;
 
 export const Mode = {
   ADDING: `adding`,
@@ -97,10 +97,10 @@ export default class TravelPoint {
 
     this._pointEditComponent.setSaveButtonHandler((evt) => {
       evt.preventDefault();
+      this._pointEditComponent.setBlock(true);
       this._pointEditComponent.setData({
         saveButtonText: `Saving...`,
       });
-      this._pointEditComponent.setBlock(true);
       const formData = this._pointEditComponent.getData();
       const data = parseFormData(formData);
       this._onDataChange(this, travelEvent, data);
@@ -162,17 +162,19 @@ export default class TravelPoint {
   }
 
   animateEvent() {
-    this._pointEditComponent.getElement().style.animation = `opacity ${ANIMATION_TIMEOUT / 1000}s`;
+    this._pointEditComponent.getElement().style.animation = `opacity ${ANIMATION_TIMEOUT / 1000}s linear`;
+    this._pointComponent.getElement().style.animation = `opacity ${ANIMATION_TIMEOUT / 1000}s linear`;
 
     setTimeout(() => {
       this._pointEditComponent.getElement().style.animation = ``;
+      this._pointComponent.getElement().style.animation = ``;
 
       this._pointEditComponent.setData({
         saveButtonText: `Save`,
         deleteButtonText: `Delete`,
-      }, ANIMATION_TIMEOUT);
+      });
       this._pointEditComponent.setBlock(false);
-    });
+    }, ANIMATION_TIMEOUT);
   }
 
   _replaceEventToEdit() {
