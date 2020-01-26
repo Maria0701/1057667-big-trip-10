@@ -104,6 +104,8 @@ export default class TravelPoint {
       const formData = this._pointEditComponent.getData();
       const data = parseFormData(formData);
       this._onDataChange(this, travelEvent, data);
+      this._pointEditComponent._flatpickrEnd.destroy();
+      this._pointEditComponent._flatpickrStart.destroy();
     });
 
     this._pointEditComponent.setRollUpHandler(() => {
@@ -189,7 +191,6 @@ export default class TravelPoint {
     if (document.contains(this._pointEditComponent.getElement())) {
       replace(this._pointComponent, this._pointEditComponent);
     }
-
     this._mode = Mode.DEFAULT;
   }
 

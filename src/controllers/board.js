@@ -196,7 +196,6 @@ export default class BoardController {
 
             const destroyedPoint = this._eventsControllers.pop();
             destroyedPoint.destroy();
-
             this._eventsControllers = [...eventsController, ...this._eventsControllers];
             this._updatePoints();
           })
