@@ -114,6 +114,7 @@ export default class BoardController {
   }
 
   _updatePoints() {
+    this._removePoints();
     const points = this._pointsModel.getPoints();
     if (points.length === 0) {
       const container = this._container.getElement();
@@ -121,7 +122,6 @@ export default class BoardController {
       render(container, this._noEventsComponent, RenderPosition.BEFOREEND);
       return;
     }
-    this._removePoints();
     this._renderPoints(points.slice());
   }
 
@@ -195,7 +195,7 @@ export default class BoardController {
 
             const destroyedPoint = this._eventsControllers.pop();
             destroyedPoint.destroy();
-            this._eventsControllers = [...eventsController, ...this._eventsControllers];
+            this._eventsControllers = [].concat(this._eventsControllers, eventsController);
             this._updatePoints();
           })
           .catch(() => {
