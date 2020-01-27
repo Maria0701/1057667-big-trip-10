@@ -175,7 +175,6 @@ export default class BoardController {
   _onViewChange() {
     this._eventsControllers.forEach((it) => {
       if (it === this._creatingPoint) {
-        it.destroy();
         this._creatingPoint = null;
       }
       return it.setDefaultView();
