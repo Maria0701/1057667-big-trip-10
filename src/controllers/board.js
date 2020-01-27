@@ -139,7 +139,7 @@ export default class BoardController {
 
     const newEvents = renderEvents(eventListComponent, tripEventsLists, points, this._onDataChange, this._onViewChange);
 
-    this._eventsControllers = [...this._eventsControllers, ...newEvents];
+    this._eventsControllers = [].concat(this._eventsControllers, newEvents);
   }
 
   _onSortChange(sortType) {
