@@ -154,7 +154,10 @@ export default class TravelPoint {
   }
 
   setDefaultView() {
-    if (this._mode !== Mode.DEFAULT) {
+    if (this._mode === Mode.ADDING) {
+      this.destroy();
+    }
+    if (this._mode === Mode.EDIT) {
       this._replaceEditToEvent();
     }
   }
