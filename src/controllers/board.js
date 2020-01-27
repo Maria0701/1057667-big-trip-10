@@ -175,8 +175,8 @@ export default class BoardController {
   _onViewChange() {
     this._eventsControllers.forEach((it) => {
       if (it === this._creatingPoint) {
-        this._creatingPoint = null;
         it.destroy();
+        this._creatingPoint = null;
       }
       return it.setDefaultView();
     });
@@ -196,7 +196,6 @@ export default class BoardController {
 
             const destroyedPoint = this._eventsControllers.pop();
             destroyedPoint.destroy();
-
             this._eventsControllers = [...eventsController, ...this._eventsControllers];
             this._updatePoints();
           })
