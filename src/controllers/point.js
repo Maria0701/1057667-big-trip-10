@@ -90,12 +90,12 @@ export default class TravelPoint {
 
     this._pointComponent = new EventComponent(travelEvent);
     this._pointEditComponent = new ItemEditComponent(travelEvent);
-    this._pointComponent.setEditButtonEventHandler(() => {
+    this._pointComponent.setOnEditButtonEvent(() => {
       this._replaceEventToEdit();
       document.addEventListener(`keydown`, this._onEscKeyDown);
     });
 
-    this._pointEditComponent.setSaveButtonHandler((evt) => {
+    this._pointEditComponent.setOnSaveButton((evt) => {
       evt.preventDefault();
       this._pointEditComponent.setBlock(true);
       this._pointEditComponent.setData({
@@ -106,20 +106,20 @@ export default class TravelPoint {
       this._onDataChange(this, travelEvent, data);
     });
 
-    this._pointEditComponent.setRollUpHandler(() => {
+    this._pointEditComponent.setOnRollUp(() => {
       if (this._mode === Mode.ADDING) {
         return;
       }
       this._replaceEditToEvent();
     });
 
-    this._pointEditComponent.setFavouriteButtonHandler(() => {
+    this._pointEditComponent.setOnFavouriteButton(() => {
       const newPoint = PointModel.clone(travelEvent);
       newPoint.isFavorite = !newPoint.isFavorite;
       this._onDataChange(this, travelEvent, newPoint);
     });
 
-    this._pointEditComponent.setDeleteButtonClickHandler(() => {
+    this._pointEditComponent.setOnDeleteButtonClick(() => {
       this._pointEditComponent.setData({
         deleteButtonText: `Deleting...`,
       });

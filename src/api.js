@@ -25,19 +25,19 @@ const API = class {
   getDestinations() {
     return this._load({url: `destinations`})
       .then((response) => response.json())
-      .then(Destination.parseDestinations);
+      .then(Destination.parseItems);
   }
 
   getOffers() {
     return this._load({url: `offers`})
       .then((response) => response.json())
-      .then(Offer.parseOffers);
+      .then(Offer.parseItems);
   }
 
   getPoints() {
     return this._load({url: `points`})
       .then((response) => response.json())
-      .then(Point.parsePoints);
+      .then(Point.parseItems);
   }
 
   createPoint(point) {
@@ -48,7 +48,7 @@ const API = class {
       headers: new Headers({'Content-Type': `application/json`})
     })
     .then((response) => response.json())
-    .then(Point.parsePoint);
+    .then(Point.parseItem);
   }
 
   updatePoint(id, data) {
@@ -59,7 +59,7 @@ const API = class {
       headers: new Headers({'Content-Type': `application/json`})
     })
     .then((response) => response.json())
-    .then(Point.parsePoint);
+    .then(Point.parseItem);
   }
 
   deletePoint(id) {

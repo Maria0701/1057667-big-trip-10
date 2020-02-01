@@ -190,10 +190,10 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._travelOffers = [];
     this._externalData = DefaultData;
     this._flatpickr = null;
-    this._saveButtonHandler = null;
-    this._favouriteButtonHandler = null;
-    this._rollUpHandler = null;
-    this._deleteButtonHandler = null;
+    this._onSaveButtonClick = null;
+    this._onFavouriteButtonClick = null;
+    this._onRollUpClick = null;
+    this._onDeleteButtonClick = null;
     this._applyFlatpickr();
     this._subscribeOnEvents();
   }
@@ -222,10 +222,10 @@ export default class ItemEdit extends AbstractSmartComponent {
   }
 
   recoveryListeners() {
-    this.setSaveButtonHandler(this._saveButtonHandler);
-    this.setFavouriteButtonHandler(this._favouriteButtonHandler);
-    this.setRollUpHandler(this._rollUpHandler);
-    this.setDeleteButtonClickHandler(this._deleteButtonHandler);
+    this.setOnSaveButton(this._onSaveButtonClick);
+    this.setOnFavouriteButton(this._onFavouriteButtonClick);
+    this.setOnRollUp(this._onRollUpClick);
+    this.setOnDeleteButtonClick(this._onDeleteButtonClick);
     this._subscribeOnEvents();
   }
 
@@ -263,28 +263,28 @@ export default class ItemEdit extends AbstractSmartComponent {
     });
   }
 
-  setSaveButtonHandler(handler) {
+  setOnSaveButton(handler) {
     this.getElement().querySelector(`form`)
       .addEventListener(`submit`, handler);
-    this._saveButtonHandler = handler;
+    this._onSaveButtonClick = handler;
   }
 
-  setDeleteButtonClickHandler(handler) {
+  setOnDeleteButtonClick(handler) {
     this.getElement().querySelector(`.event__reset-btn`)
       .addEventListener(`click`, handler);
-    this._deleteButtonHandler = handler;
+    this._onDeleteButtonClick = handler;
   }
 
-  setFavouriteButtonHandler(handler) {
+  setOnFavouriteButton(handler) {
     this.getElement().querySelector(`.event__favorite-checkbox`)
     .addEventListener(`click`, debounce(handler, 2000, this));
-    this._favouriteButtonHandler = handler;
+    this._onFavouriteButtonClick = handler;
   }
 
-  setRollUpHandler(handler) {
+  setOnRollUp(handler) {
     this.getElement().querySelector(`.event__rollup-btn`)
       .addEventListener(`click`, handler);
-    this._rollUpHandler = handler;
+    this._onRollUpClick = handler;
   }
 
   getData() {

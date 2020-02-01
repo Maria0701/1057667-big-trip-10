@@ -44,7 +44,7 @@ export default class Points {
     return true;
   }
 
-  setFilterChangeHandler(handler) {
+  setOnFilterChange(handler) {
     this._filterChangeHandlers.push(handler);
   }
 

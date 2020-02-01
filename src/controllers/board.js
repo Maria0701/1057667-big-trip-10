@@ -67,8 +67,8 @@ export default class BoardController {
     this._onDataChange = this._onDataChange.bind(this);
     this._onSortChange = this._onSortChange.bind(this);
     this._onFilterChange = this._onFilterChange.bind(this);
-    this._sortingComponent.sortTypeChangeHandler(this._onSortChange);
-    this._pointsModel.setFilterChangeHandler(this._onFilterChange);
+    this._sortingComponent.onSortTypeChange(this._onSortChange);
+    this._pointsModel.setOnFilterChange(this._onFilterChange);
   }
 
   render() {
