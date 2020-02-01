@@ -2,6 +2,7 @@ import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, CURRENCY, Placeholder} from '../const
 import {getDateFormatEditor, getToStringDateFormat, debounce} from '../utils/common.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
 import flatpickr from 'flatpickr';
+import RangePlugin from 'flatpickr/dist/plugins/rangePlugin.js';
 import 'flatpickr/dist/flatpickr.css';
 import {travelOffers, travelCities} from '../main.js';
 
@@ -188,8 +189,7 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._endDate = travelEvent.endDate;
     this._travelOffers = [];
     this._externalData = DefaultData;
-    this._flatpickrStart = null;
-    this._flatpickrEnd = null;
+    this._flatpickr = null;
     this._saveButtonHandler = null;
     this._favouriteButtonHandler = null;
     this._rollUpHandler = null;
@@ -214,15 +214,10 @@ export default class ItemEdit extends AbstractSmartComponent {
   }
 
   removeElement() {
-    if (this._flatpickrStart) {
-      this._flatpickrStart.destroy();
-      this._flatpickrStart = null;
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
     }
-    if (this._flatpickrEnd) {
-      this._flatpickrEnd.destroy();
-      this._flatpickrEnd = null;
-    }
-
     super.removeElement();
   }
 
@@ -298,44 +293,24 @@ export default class ItemEdit extends AbstractSmartComponent {
   }
 
   _applyFlatpickr() {
-    if (this._flatpickrStart) {
-      this._flatpickrStart.destroy();
-      this._flatpickrStart = null;
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
     }
-    const startTimes = this.getElement().querySelector(`#event-start-time-1`);
-    this._flatpickrStart = flatpickr(startTimes, {
-      allowInput: true,
+    const start = this.getElement().querySelector(`#event-start-time-1`);
+    const end = this.getElement().querySelector(`#event-end-time-1`);
+    this._flatpickr = flatpickr(start, {
+      alowInput: true,
       enableTime: true,
-      minDate: ``,
       time24hr: true,
       dateFormat: `d/m/Y H:i`,
-      defaultDate: startTimes.value,
-      onChange: ((selectedDates, dateStr) => {
-        this._startDate = getToStringDateFormat(dateStr);
-      }),
-      onClose: (() => {
-        this.rerender();
-      })
-    });
-
-    const endTimes = this.getElement().querySelectorAll(`#event-end-time-1`);
-    if (this._flatpickrEnd) {
-      this._flatpickrEnd.destroy();
-      this._flatpickrEnd = null;
-    }
-    this._flatpickrEnd = flatpickr(endTimes, {
-      allowInput: true,
-      enableTime: true,
-      minDate: this._startDate,
-      time24hr: true,
-      dateFormat: `d/m/Y H:i`,
-      defaultDate: endTimes.value,
-      onChange: ((selectedDates, dateStr) => {
-        this._endDate = getToStringDateFormat(dateStr);
-      }),
-      onClose: (() => {
-        this.rerender();
-      })
+      mode: `range`,
+      plugins: [new RangePlugin({input: end})],
+      onClose: [((selectedDates) => {
+        this._startDate = getToStringDateFormat(selectedDates[0]);
+        this._endDate = getToStringDateFormat(selectedDates[1]);
+        this.rerender.bind(this);
+      })],
     });
   }
 
@@ -358,7 +333,6 @@ export default class ItemEdit extends AbstractSmartComponent {
   }
 
   _subscribeOnEvents() {
-
     const element = this.getElement();
     const eventType = element.querySelector(`.event__type-list`);
     eventType.addEventListener(`change`, (evt) => {

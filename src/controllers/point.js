@@ -131,8 +131,10 @@ export default class TravelPoint {
       case Mode.DEFAULT:
         if (oldEvent && oldEditEvent) {
           replace(this._pointComponent, oldEvent);
-          oldEditEvent._flatpickrEnd.destroy();
-          oldEditEvent._flatpickrStart.destroy();
+          if (oldEditEvent._flatpickr) {
+            oldEditEvent._flatpickr.destroy();
+            oldEditEvent._flatpickr = null;
+          }
           replace(this._pointEditComponent, oldEditEvent);
           this._replaceEditToEvent();
         } else {
@@ -142,8 +144,10 @@ export default class TravelPoint {
       case Mode.ADDING:
         if (oldEvent && oldEditEvent) {
           remove(oldEvent);
-          oldEditEvent._flatpickrEnd.destroy();
-          oldEditEvent._flatpickrStart.destroy();
+          if (oldEditEvent._flatpickr) {
+            oldEditEvent._flatpickr.destroy();
+            oldEditEvent._flatpickr = null;
+          }
           remove(oldEditEvent);
         }
         this._onViewChange();
@@ -164,6 +168,10 @@ export default class TravelPoint {
 
   destroy() {
     remove(this._pointComponent);
+    if (this._pointEditComponent._flatpickr) {
+      this._pointEditComponent._flatpickr.destroy();
+      this._pointEditComponent._flatpickr = null;
+    }
     remove(this._pointEditComponent);
     document.removeEventListener(`keydown`, this._onEscKeyDown);
   }

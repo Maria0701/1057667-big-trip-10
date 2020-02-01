@@ -45,8 +45,6 @@ export default class Menu extends AbstractComponent {
       if (evt.target.tagName === `A` || evt.target.tagName === `BUTTON`) {
         const menuItem = evt.target.id;
         handler(menuItem);
-      } else {
-        return;
       }
     });
   }

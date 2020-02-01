@@ -13,9 +13,9 @@ const createDayCardTemplate = (date, order) => {
         <ul class="trip-events__list">
         </ul>
     </li>`);
-  } else {
-    return (
-      `<li class="trip-days__item  day">
+  }
+  return (
+    `<li class="trip-days__item  day">
           <div class="day__info">
             <span class="day__counter">${order + 1}</span>
             <time class="day__date" datetime="${getTimeIsoFull(eventDate)}"> ${tripDate}
@@ -24,8 +24,7 @@ const createDayCardTemplate = (date, order) => {
         <ul class="trip-events__list" id="${getTimeIso(eventDate)}">
         </ul>
       </li>`
-    );
-  }
+  );
 };
 
 export default class DateComponent extends AbstractComponent {

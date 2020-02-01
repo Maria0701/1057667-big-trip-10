@@ -6,7 +6,7 @@ const createArrayPrices = (array) => {
 };
 
 const addonsPrices = (data) => data.reduce((total, amount) => {
-  amount.travelAddons.forEach((price) => {
+  amount.travelAddons.map((price) => {
     total.push(price);
   });
   return total;

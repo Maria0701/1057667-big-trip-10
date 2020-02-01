@@ -60,6 +60,7 @@ export default class BoardController {
     this._api = api;
     this._noEventsComponent = new NoEventsComponent();
     this._creatingPoint = null;
+    this._sortType = SortType.DEFAULT_EVENT;
     this._sortingComponent = new SortingComponent();
     this._eventListComponent = new EventsListComponent();
     this._onViewChange = this._onViewChange.bind(this);
@@ -122,7 +123,7 @@ export default class BoardController {
       render(container, this._noEventsComponent, RenderPosition.BEFOREEND);
       return;
     }
-    this._renderPoints(points.slice());
+    this._renderPoints(points.slice(), this._sortType);
   }
 
   _renderPoints(points, sortType = SortType.DEFAULT_EVENT) {
@@ -149,14 +150,17 @@ export default class BoardController {
       case SortType.TIME_DOWN:
         sortedEvents = points.slice()
             .sort((a, b) => ((b.endDate - b.startDate) - (a.endDate - a.startDate)));
+        this._sortType = SortType.TIME_DOWN;
         break;
       case SortType.PRICE_DOWN:
         sortedEvents = points.slice()
             .sort((a, b) => b.price - a.price);
+        this._sortType = SortType.PRICE_DOWN;
         break;
       case SortType.DEFAULT_EVENT:
         sortedEvents = points.slice()
             .sort((a, b) => a.startDate - b.startDate);
+        this._sortType = SortType.DEFAULT_EVENT;
         break;
     }
 
@@ -169,7 +173,6 @@ export default class BoardController {
     }
 
     this._renderPoints(sortedEvents, sortType);
-    return;
   }
 
   _onViewChange() {
