@@ -19,23 +19,15 @@ const getOfferName = (name) => {
 };
 
 const actualAddons = (offersAll, allAddons, type) => {
-  let actualOrders = [];
-  allAddons.forEach((item) => {
-    if (item.type === type) {
-      actualOrders = item.offers;
-    }
-  });
-  const nArray = [];
-  Array.from(offersAll).forEach((offer) => {
+  const activeType = allAddons.find((item) => item.type === type);
+  const actualOrders = [...activeType.offers];
+  const pointOffers = [];
+  [...offersAll].forEach((offer) => {
     if (offer.checked) {
-      actualOrders.forEach((addon) => {
-        if (addon.title.replace(/\s+/g, ``).toLowerCase() === getOfferName(offer.name)) {
-          nArray.push(addon);
-        }
-      });
+      pointOffers.push(actualOrders.find((addon) => addon.title.replace(/\s+/g, ``).toLowerCase() === getOfferName(offer.name)));
     }
   });
-  return nArray;
+  return pointOffers;
 };
 
 const parseFormData = (formData) => {

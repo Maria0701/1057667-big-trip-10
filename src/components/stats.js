@@ -112,7 +112,7 @@ const renderChart = (colorCtx, points, array, details) => {
           fontSize: `20px`,
           fontWeight: `bold`,
           formatter: (value) => {
-            return details.remarkPlace === `start` ? `${details.remark + ` ` + Math.round(value)}` : `${Math.round(value) + ` ` + details.remark}`;
+            return details.remarkPlace === `start` ? `${details.remark} ${ Math.round(value)}` : `${Math.round(value)} ${details.remark}`;
           }
         }
       }

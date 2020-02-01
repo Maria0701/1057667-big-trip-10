@@ -355,11 +355,7 @@ export default class ItemEdit extends AbstractSmartComponent {
         }
         if (!getArrayOfActiveOffers(this._offers)
         .includes(evt.target.value)) {
-          this._travelOffers.forEach((addon) => {
-            if (addon.title === evt.target.value) {
-              this._offers.push(addon);
-            }
-          });
+          this._offers.push(this._travelOffers.find((addon) => addon.title === evt.target.value));
         } else {
           const index = this._offers.findIndex((it) => it.title === evt.target.value);
           this._offers = [].concat(this._offers.slice(0, index), this._offers.slice(index + 1));

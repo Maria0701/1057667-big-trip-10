@@ -22,14 +22,9 @@ const getSingleDatesArray = (events) => {
 };
 
 
-const singleDateContainer = (list, event) => {
-  let singleDayContainer;
-  list.forEach((it) => {
-    const dateIterator = getTimeIso(event.startDate);
-    if (it.id === dateIterator) {
-      singleDayContainer = it;
-    }
-  });
+const getSingleDateContainer = (list, event) => {
+  const dateIterator = getTimeIso(event.startDate);
+  const singleDayContainer = [...list].find((item) => item.id === dateIterator);
   return singleDayContainer;
 };
 
@@ -37,7 +32,7 @@ const renderEvents = (dayContainer, tripEventsLists, travelEvents, onDataChange,
   return travelEvents.map((travelEvent) => {
     let container;
     if (Array.from(tripEventsLists).length > 0) {
-      container = singleDateContainer(tripEventsLists, travelEvent);
+      container = getSingleDateContainer(tripEventsLists, travelEvent);
     } else {
       container = tripEventsLists;
     }
