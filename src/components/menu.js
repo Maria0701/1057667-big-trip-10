@@ -48,5 +48,4 @@ export default class Menu extends AbstractComponent {
       }
     });
   }
-
 }

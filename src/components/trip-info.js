@@ -40,8 +40,8 @@ const createTripInfo = (points) => {
     cities = getCityNames(cityArray);
 
     datePeriod = getDatePeriod(cityArray);
-    const priceArray = [...createArrayPrices(points), ...createArrayPrices(addonsPrices(points))];
-    totalPrice = priceArray.reduce((sum, current) =>
+    const allPrices = [...createArrayPrices(points), ...createArrayPrices(addonsPrices(points))];
+    totalPrice = allPrices.reduce((sum, current) =>
       sum + current);
   }
 

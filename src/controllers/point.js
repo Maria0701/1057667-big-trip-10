@@ -1,7 +1,7 @@
 import EventComponent from '../components/event-item.js';
 import ItemEditComponent from '../components/event-item-edit.js';
 import {RenderPosition, render, replace, remove} from '../utils/render.js';
-import {TRAVEL_TRANSPORT, OFFER_PREFIX} from '../const.js';
+import {OFFER_PREFIX} from '../const.js';
 import {getToStringDateFormat} from '../utils/common.js';
 import {travelOffers, travelCities} from '../main.js';
 import PointModel from '../models/point.js';
@@ -57,7 +57,7 @@ export const EmptyPoint = {
   startDate: new Date(),
   endDate: new Date(),
   destination: ` `,
-  travelPoints: TRAVEL_TRANSPORT[0],
+  travelPoints: ``,
   price: ``,
   travelAddons: [],
   isFavorite: false,
@@ -79,9 +79,8 @@ export default class TravelPoint {
     const oldEvent = this._pointComponent;
     const oldEditEvent = this._pointEditComponent;
     this._mode = mode;
-
     this._pointComponent = new EventComponent(travelEvent);
-    this._pointEditComponent = new ItemEditComponent(travelEvent);
+    this._pointEditComponent = new ItemEditComponent(travelEvent, this._mode);
     this._pointComponent.setOnEditButtonEvent(() => {
       this._replaceEventToEdit();
       document.addEventListener(`keydown`, this._onEscKeyDown);

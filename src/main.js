@@ -37,14 +37,13 @@ const statisticsComponent = new StatisticsComponent(pointsModel);
 render(boardPlace, statisticsComponent, RenderPosition.BEFOREEND);
 statisticsComponent.hide();
 
-export let travelCities = [];
+
 api.getDestinations()
   .then((destinations) => {
     destinations.map((it) => travelCities.push(it));
     return travelCities;
   });
 
-export let travelOffers = [];
 api.getOffers()
     .then((offers) => {
       offers.map((it) => travelOffers.push(it));
@@ -76,3 +75,5 @@ siteMenuComponent.setOnChange((menuItem) => {
       break;
   }
 });
+export const travelCities = [];
+export const travelOffers = [];

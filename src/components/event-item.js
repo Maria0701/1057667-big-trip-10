@@ -2,19 +2,6 @@ import {getEventTime, getTimeDifference, getTimeIso} from '../utils/common.js';
 import AbstractComponent from './abstract-component.js';
 import {TRAVEL_TRANSPORT, Placeholder, CURRENCY} from '../const.js';
 
-export const createArrayStartDates = (array) => {
-  return array.map((it) => it.startDate);
-};
-
-export const createArrayEndDates = (array) => {
-  return array.map((it) => it.endDate);
-};
-
-export const createArrayCities = (array) => {
-  return array.map((it) => it.destination.name);
-};
-
-
 const generateTravelAddonMarkup = (addons) => {
   return addons
   .slice(0, 3)
@@ -63,6 +50,10 @@ const createEventItemTemplate = (travelEvent) => {
       </div>
     </li>`
   );
+};
+
+export const createArrayStartDates = (array) => {
+  return array.map((it) => it.startDate);
 };
 
 export default class Event extends AbstractComponent {

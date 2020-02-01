@@ -7,7 +7,7 @@ import {getDateWithoutMinutes, getTimeIso} from '../utils/common.js';
 import {RenderPosition, render} from '../utils/render.js';
 import TravelPoint, {Mode as PointControllerMode, EmptyPoint} from './point.js';
 
-const singleDates = (evts) => {
+const getSingleDates = (evts) => {
   const setOfSingleDates = new Set();
   evts.map((evt) =>{
     setOfSingleDates.add(getDateWithoutMinutes(evt));
@@ -16,7 +16,7 @@ const singleDates = (evts) => {
 };
 
 const getSingleDatesArray = (events) => {
-  return Array.from(singleDates(createArrayStartDates(events)))
+  return Array.from(getSingleDates(createArrayStartDates(events)))
     .slice()
     .sort((a, b) => a - b);
 };
@@ -86,7 +86,8 @@ export default class BoardController {
       return;
     }
     const eventListComponent = this._eventListComponent.getElement();
-    if (!document.contains(this._eventListComponent.getElement())) {
+    if (!document
+      .contains(this._eventListComponent.getElement())) {
       const container = this._container.getElement();
       container.innerHTML = ``;
       render(container, this._sortingComponent, RenderPosition.BEFOREEND);
@@ -139,6 +140,7 @@ export default class BoardController {
   }
 
   _onSortChange(sortType) {
+    this._onViewChange();
     let sortedEvents = [];
     const points = this._pointsModel.getPoints();
     switch (sortType) {
