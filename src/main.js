@@ -16,8 +16,6 @@ const pointsModel = new Points();
 const siteMainElement = document.querySelector(`.page-body`);
 const siteHeaderElement = siteMainElement.querySelector(`.page-header__container`);
 
-const loadingElement = siteHeaderElement.querySelector(`.loading`);
-
 const siteMenuComponent = new SiteMenuComponent();
 render(siteHeaderElement, siteMenuComponent, RenderPosition.BEFOREEND);
 const mainTripControls = siteHeaderElement.querySelector(`.trip-main__trip-controls`);
