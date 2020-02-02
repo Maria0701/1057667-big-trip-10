@@ -21,14 +21,12 @@ render(siteHeaderElement, siteMenuComponent, RenderPosition.BEFOREEND);
 const mainTripControls = siteHeaderElement.querySelector(`.trip-main__trip-controls`);
 const filterController = new FilterController(mainTripControls, pointsModel);
 filterController.render();
-
 const boardComponent = new BoardComponent();
 const boardController = new TripController(boardComponent, pointsModel, api);
 
 const mainTripInfoElement = siteHeaderElement.querySelector(`.trip-main`);
 
 const tripInfoController = new TripInfoController(mainTripInfoElement, pointsModel);
-
 
 const boardPlace = siteMainElement.querySelector(`.page-main .page-body__container`);
 render(boardPlace, boardComponent, RenderPosition.BEFOREEND);

@@ -1,4 +1,4 @@
-import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, CURRENCY, Placeholder} from '../const.js';
+import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, CURRENCY, Placeholder, DEFAULT_OFFER, DEFAULT_TARGET_TAG} from '../const.js';
 import {getDateFormatEditor, getToStringDateFormat, debounce} from '../utils/common.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
 import flatpickr from 'flatpickr';
@@ -6,8 +6,6 @@ import RangePlugin from 'flatpickr/dist/plugins/rangePlugin.js';
 import 'flatpickr/dist/flatpickr.css';
 import {travelOffers, travelCities} from '../main.js';
 import {Mode as PointControllerMode} from '../controllers/point.js';
-
-const DEFAULT_OFFER = `trip`;
 
 const DefaultData = {
   deleteButtonText: `Delete`,
@@ -360,7 +358,7 @@ export default class ItemEdit extends AbstractSmartComponent {
     const availableOffers = element.querySelector(`.event__available-offers`);
     if (availableOffers) {
       availableOffers.addEventListener(`click`, (evt) => {
-        if (evt.target.tagName !== `INPUT`) {
+        if (evt.target.tagName !== DEFAULT_TARGET_TAG) {
           return;
         }
         if (!getArrayOfActiveOffers(this._offers)

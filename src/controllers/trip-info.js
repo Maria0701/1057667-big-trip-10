@@ -8,7 +8,7 @@ export default class TripInfoController {
     this._pointsModel = pointsModel;
     this._tripInfoComponent = null;
     this._onDataChange = this._onDataChange.bind(this);
-    this._pointsModel.setDataChangeHandlers(this._onDataChange);
+    this._pointsModel.setOnDataChange(this._onDataChange);
   }
 
   render() {

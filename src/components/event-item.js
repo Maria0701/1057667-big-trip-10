@@ -1,6 +1,6 @@
 import {getEventTime, getTimeDifference, getTimeIso} from '../utils/common.js';
 import AbstractComponent from './abstract-component.js';
-import {TRAVEL_TRANSPORT, Placeholder, CURRENCY} from '../const.js';
+import {TRAVEL_TRANSPORT, Placeholder, CURRENCY, DEFAULT_OFFER} from '../const.js';
 
 const generateTravelAddonMarkup = (addons) => {
   return addons
@@ -23,7 +23,7 @@ const createEventItemTemplate = (travelEvent) => {
     `<li class="trip-events__item">
       <div class="event">
         <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/${travelPoints}.png" alt="Event type icon">
+          <img class="event__type-icon" width="42" height="42" src="img/icons/${travelPoints ? travelPoints : DEFAULT_OFFER}.png" alt="Event type icon">
         </div>
         <h3 class="event__title">${travelPoints}  ${TRAVEL_TRANSPORT.includes(travelPoints) ? Placeholder.TRANSPORT : Placeholder.ACTION} ${destination.name}</h3>
         <div class="event__schedule">

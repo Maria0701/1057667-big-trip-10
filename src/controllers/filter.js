@@ -20,7 +20,6 @@ export default class FilterController {
         checked: filterType === this._activeFiterType,
       };
     });
-
     const oldComponent = this._filterComponent;
     this._filterComponent = new FilterComponent(filters);
     this._filterComponent.setOnFilterChange(this._onFilterChange);
