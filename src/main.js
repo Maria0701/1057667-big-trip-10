@@ -64,10 +64,12 @@ siteMenuComponent.setOnChange((menuItem) => {
       boardController.createPoint();
       break;
     case MenuItems.STATS:
+      siteMenuComponent.setActiveItem(MenuItems.STATS);
       boardComponent.hide();
       statisticsComponent.show();
       break;
     case MenuItems.TABLE:
+      siteMenuComponent.setActiveItem(MenuItems.TABLE);
       statisticsComponent.hide();
       boardComponent.show();
       break;
