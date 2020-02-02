@@ -1,7 +1,6 @@
 import TripInfoComponent from '../components/trip-info.js';
 import {RenderPosition, render, replace} from '../utils/render.js';
 
-
 export default class TripInfoController {
   constructor(container, pointsModel) {
     this._container = container;
@@ -21,6 +20,10 @@ export default class TripInfoController {
     } else {
       render(container, this._tripInfoComponent, RenderPosition.AFTERBEGIN);
     }
+  }
+
+  onLoad() {
+    this._tripInfoComponent.querySelector(`trip-info__title`).classList.remove(`loading`);
   }
 
   _onDataChange() {

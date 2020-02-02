@@ -12,6 +12,7 @@ const DefaultData = {
   saveButtonText: `Save`,
 };
 
+
 const destinationNames = (cities) => {
   return cities.map((city) => city.name);
 };
@@ -267,6 +268,9 @@ export default class ItemEdit extends AbstractSmartComponent {
     element.querySelectorAll(`button`).forEach((it) => {
       it.disabled = statement;
     });
+    if (statement) {
+      element.classList.add(`blockForm`);
+    }
   }
 
   setOnSaveButton(handler) {

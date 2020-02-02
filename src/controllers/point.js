@@ -88,10 +88,11 @@ export default class TravelPoint {
 
     this._pointEditComponent.setOnSaveButton((evt) => {
       evt.preventDefault();
-      this._pointEditComponent.setBlock(true);
+
       this._pointEditComponent.setData({
         saveButtonText: `Saving...`,
       });
+      this._pointEditComponent.setBlock(true);
       const formData = this._pointEditComponent.getData();
       const data = parseFormData(formData);
       this._onDataChange(this, travelEvent, data);

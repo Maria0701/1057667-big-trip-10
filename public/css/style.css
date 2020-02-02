@@ -430,8 +430,10 @@ main {
   list-style: none; }
 
 .trip-events__item {
+  position: relative;
   margin-bottom: 54px;
-  margin-left: auto; }
+  margin-left: auto;
+}
 
 .trip-sort {
   display: -ms-flexbox;
@@ -545,6 +547,7 @@ main {
   font-size: 17px;
   line-height: 21px; }
   .event--edit {
+    position: relative;
     display: block;
     padding: 0;
     background-color: #ffffff;
@@ -956,3 +959,15 @@ main {
 .shake {
     animation: opacity 3s linear infinite;
   }
+
+.blockForm::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: block;
+  background: rgba(0, 0, 0, 0.5);
+}
