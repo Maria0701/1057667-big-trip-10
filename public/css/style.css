@@ -1009,7 +1009,7 @@ main {
   height: 10px;
 }
 .loading::after {
-  content: 'Loading';
+  content: 'Loading...';
   display: block;
   position: absolute;
   top: 0;
