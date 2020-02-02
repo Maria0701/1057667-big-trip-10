@@ -5,11 +5,11 @@ export default class Destination {
     this.pictures = data[`pictures`];
   }
 
-  static parseDestination(data) {
+  static parseItem(data) {
     return new Destination(data);
   }
 
-  static parseDestinations(data) {
-    return data.map(Destination.parseDestination);
+  static parseItems(data) {
+    return data.map(Destination.parseItem);
   }
 }

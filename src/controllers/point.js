@@ -1,7 +1,7 @@
 import EventComponent from '../components/event-item.js';
 import ItemEditComponent from '../components/event-item-edit.js';
 import {RenderPosition, render, replace, remove} from '../utils/render.js';
-import {TRAVEL_TRANSPORT, OFFER_PREFIX} from '../const.js';
+import {OFFER_PREFIX} from '../const.js';
 import {getToStringDateFormat} from '../utils/common.js';
 import {travelOffers, travelCities} from '../main.js';
 import PointModel from '../models/point.js';
@@ -19,23 +19,15 @@ const getOfferName = (name) => {
 };
 
 const actualAddons = (offersAll, allAddons, type) => {
-  let actualOrders = [];
-  allAddons.forEach((item) => {
-    if (item.type === type) {
-      actualOrders = item.offers;
-    }
-  });
-  const nArray = [];
-  Array.from(offersAll).forEach((offer) => {
+  const activeType = allAddons.find((item) => item.type === type);
+  const actualOrders = [...activeType.offers];
+  const pointOffers = [];
+  [...offersAll].forEach((offer) => {
     if (offer.checked) {
-      actualOrders.forEach((addon) => {
-        if (addon.title.replace(/\s+/g, ``).toLowerCase() === getOfferName(offer.name)) {
-          nArray.push(addon);
-        }
-      });
+      pointOffers.push(actualOrders.find((addon) => addon.title.replace(/\s+/g, ``).toLowerCase() === getOfferName(offer.name)));
     }
   });
-  return nArray;
+  return pointOffers;
 };
 
 const parseFormData = (formData) => {
@@ -65,7 +57,7 @@ export const EmptyPoint = {
   startDate: new Date(),
   endDate: new Date(),
   destination: ` `,
-  travelPoints: TRAVEL_TRANSPORT[0],
+  travelPoints: ``,
   price: ``,
   travelAddons: [],
   isFavorite: false,
@@ -87,39 +79,39 @@ export default class TravelPoint {
     const oldEvent = this._pointComponent;
     const oldEditEvent = this._pointEditComponent;
     this._mode = mode;
-
     this._pointComponent = new EventComponent(travelEvent);
-    this._pointEditComponent = new ItemEditComponent(travelEvent);
-    this._pointComponent.setEditButtonEventHandler(() => {
+    this._pointEditComponent = new ItemEditComponent(travelEvent, this._mode);
+    this._pointComponent.setOnEditButtonEvent(() => {
       this._replaceEventToEdit();
       document.addEventListener(`keydown`, this._onEscKeyDown);
     });
 
-    this._pointEditComponent.setSaveButtonHandler((evt) => {
+    this._pointEditComponent.setOnSaveButton((evt) => {
       evt.preventDefault();
-      this._pointEditComponent.setBlock(true);
+
       this._pointEditComponent.setData({
         saveButtonText: `Saving...`,
       });
+      this._pointEditComponent.setBlock(true);
       const formData = this._pointEditComponent.getData();
       const data = parseFormData(formData);
       this._onDataChange(this, travelEvent, data);
     });
 
-    this._pointEditComponent.setRollUpHandler(() => {
+    this._pointEditComponent.setOnRollUp(() => {
       if (this._mode === Mode.ADDING) {
         return;
       }
       this._replaceEditToEvent();
     });
 
-    this._pointEditComponent.setFavouriteButtonHandler(() => {
+    this._pointEditComponent.setOnFavouriteButton(() => {
       const newPoint = PointModel.clone(travelEvent);
       newPoint.isFavorite = !newPoint.isFavorite;
       this._onDataChange(this, travelEvent, newPoint);
     });
 
-    this._pointEditComponent.setDeleteButtonClickHandler(() => {
+    this._pointEditComponent.setOnDeleteButtonClick(() => {
       this._pointEditComponent.setData({
         deleteButtonText: `Deleting...`,
       });
@@ -131,8 +123,10 @@ export default class TravelPoint {
       case Mode.DEFAULT:
         if (oldEvent && oldEditEvent) {
           replace(this._pointComponent, oldEvent);
-          oldEditEvent._flatpickrEnd.destroy();
-          oldEditEvent._flatpickrStart.destroy();
+          if (oldEditEvent._flatpickr) {
+            oldEditEvent._flatpickr.destroy();
+            oldEditEvent._flatpickr = null;
+          }
           replace(this._pointEditComponent, oldEditEvent);
           this._replaceEditToEvent();
         } else {
@@ -142,8 +136,10 @@ export default class TravelPoint {
       case Mode.ADDING:
         if (oldEvent && oldEditEvent) {
           remove(oldEvent);
-          oldEditEvent._flatpickrEnd.destroy();
-          oldEditEvent._flatpickrStart.destroy();
+          if (oldEditEvent._flatpickr) {
+            oldEditEvent._flatpickr.destroy();
+            oldEditEvent._flatpickr = null;
+          }
           remove(oldEditEvent);
         }
         this._onViewChange();
@@ -164,6 +160,10 @@ export default class TravelPoint {
 
   destroy() {
     remove(this._pointComponent);
+    if (this._pointEditComponent._flatpickr) {
+      this._pointEditComponent._flatpickr.destroy();
+      this._pointEditComponent._flatpickr = null;
+    }
     remove(this._pointEditComponent);
     document.removeEventListener(`keydown`, this._onEscKeyDown);
   }

@@ -6,6 +6,8 @@ export const MILISECONDS = {
 };
 
 export const CURRENCY = `€`;
+export const DEFAULT_OFFER = `trip`;
+export const DEFAULT_TARGET_TAG = `INPUT`;
 
 export const TRAVEL_TRANSPORT = [
   `taxi`,
@@ -23,16 +25,16 @@ export const TRAVEL_ACTIVITY = [
   `restaurant`
 ];
 
-export const FILTER_NAMES = [
-  `everything`,
-  `future`,
-  `past`,
-];
-
 export const FilterType = {
   EVERYTHING: `everything`,
   FUTURE: `future`,
   PAST: `past`,
+};
+
+export const SortType = {
+  DEFAULT_EVENT: `event`,
+  TIME_DOWN: `time`,
+  PRICE_DOWN: `price`,
 };
 
 export const Placeholder = {

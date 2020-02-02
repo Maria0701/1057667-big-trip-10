@@ -1,14 +1,17 @@
-import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, CURRENCY, Placeholder} from '../const.js';
+import {TRAVEL_TRANSPORT, TRAVEL_ACTIVITY, CURRENCY, Placeholder, DEFAULT_OFFER, DEFAULT_TARGET_TAG} from '../const.js';
 import {getDateFormatEditor, getToStringDateFormat, debounce} from '../utils/common.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
 import flatpickr from 'flatpickr';
+import RangePlugin from 'flatpickr/dist/plugins/rangePlugin.js';
 import 'flatpickr/dist/flatpickr.css';
 import {travelOffers, travelCities} from '../main.js';
+import {Mode as PointControllerMode} from '../controllers/point.js';
 
 const DefaultData = {
   deleteButtonText: `Delete`,
   saveButtonText: `Save`,
 };
+
 
 const destinationNames = (cities) => {
   return cities.map((city) => city.name);
@@ -68,13 +71,14 @@ const createPhotoTemplate = (photos) => {
 };
 
 const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
-  const {travelPoints, destination, description, photos, price, travelAddons, externalData, startDate, endDate} = options;
+  const {travelPoints, destination, description, photos, price, travelAddons, externalData, startDate, endDate, mode} = options;
   const {isFavorite} = travelEvent;
   const travelCityNames = destinationNames(travelCities);
   const isValidCity = travelCityNames.includes(destination);
   const isValidprice = Number.isInteger(price);
-  const isValidDates = new Date(endDate) > new Date(startDate);
-  const isBlockSaveButton = (isValidCity && isValidprice && isValidDates);
+  const isValidDates = new Date(endDate) >= new Date(startDate);
+  const isValidType = travelPoints !== ``;
+  const isBlockSaveButton = (isValidCity && isValidprice && isValidDates && isValidType);
   const deleteButtonText = externalData.deleteButtonText;
   const saveButtonText = externalData.saveButtonText;
   return (
@@ -84,7 +88,7 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
           <div class="event__type-wrapper">
             <label class="event__type  event__type-btn" for="event-type-toggle-1">
               <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="img/icons/${travelPoints}.png" alt="Event type icon">
+              <img class="event__type-icon" width="17" height="17" src="img/icons/${travelPoints ? travelPoints : DEFAULT_OFFER}.png" alt="Event type icon">
             </label>
             <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -102,7 +106,7 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
 
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">
-              ${travelPoints} ${TRAVEL_TRANSPORT.includes(travelPoints) ? Placeholder.TRANSPORT : Placeholder.ACTION}
+              ${travelPoints ? travelPoints : DEFAULT_OFFER} ${TRAVEL_TRANSPORT.includes(travelPoints) ? Placeholder.TRANSPORT : Placeholder.ACTION}
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination ? destination : ``}" list="destination-list-1">
             <datalist id="destination-list-1">
@@ -131,20 +135,19 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
           </div>
           <button class="event__save-btn  btn  btn--blue" type="submit" ${isBlockSaveButton ? `` : `disabled`}>${saveButtonText}</button>
           <button class="event__reset-btn" type="reset">${deleteButtonText}</button>
-
-          <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
+          ${mode !== PointControllerMode.ADDING ?
+      `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
           <label class="event__favorite-btn" for="event-favorite-1">
             <span class="visually-hidden">Add to favorite</span>
             <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
               <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
             </svg>
-          </label>
-
+          </label>` : ``}
           <button class="event__rollup-btn" type="button">
             <span class="visually-hidden">Open event</span>
           </button>
         </header>
-        ${destination ?
+        ${destination || travelOfs.length > 0 ?
       `<section class="event__details">
       ${travelOfs.length > 0 ?
       `<section class="event__section  event__section--offers">
@@ -154,7 +157,8 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
             </div>
           </section>`
       : ``}
-          <section class="event__section  event__section--destination">
+      ${destination ?
+      `<section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
             <p class="event__destination-description">${description}</p>
 
@@ -163,7 +167,8 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
               ${createPhotoTemplate(photos)}
               </div>
             </div>
-          </section>
+          </section>`
+      : ``}
         </section>`
       : ``}
       </form>
@@ -174,7 +179,7 @@ const createEventEditTemplate = (travelEvent, options = {}, travelOfs) => {
 const getArrayOfActiveOffers = (array) => array.map((it) => it.title);
 
 export default class ItemEdit extends AbstractSmartComponent {
-  constructor(travelEvent) {
+  constructor(travelEvent, mode) {
     super();
     this._event = travelEvent;
     this._offers = travelEvent.travelAddons;
@@ -187,13 +192,14 @@ export default class ItemEdit extends AbstractSmartComponent {
     this._startDate = travelEvent.startDate;
     this._endDate = travelEvent.endDate;
     this._travelOffers = [];
+    this._travelCities = travelCities;
     this._externalData = DefaultData;
-    this._flatpickrStart = null;
-    this._flatpickrEnd = null;
-    this._saveButtonHandler = null;
-    this._favouriteButtonHandler = null;
-    this._rollUpHandler = null;
-    this._deleteButtonHandler = null;
+    this._flatpickr = null;
+    this._onSaveButtonClick = null;
+    this._onFavouriteButtonClick = null;
+    this._onRollUpClick = null;
+    this._onDeleteButtonClick = null;
+    this._mode = mode;
     this._applyFlatpickr();
     this._subscribeOnEvents();
   }
@@ -210,27 +216,23 @@ export default class ItemEdit extends AbstractSmartComponent {
       travelAddons: this._offers,
       price: this._price,
       externalData: this._externalData,
+      mode: this._mode,
     }, this._travelOffers);
   }
 
   removeElement() {
-    if (this._flatpickrStart) {
-      this._flatpickrStart.destroy();
-      this._flatpickrStart = null;
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
     }
-    if (this._flatpickrEnd) {
-      this._flatpickrEnd.destroy();
-      this._flatpickrEnd = null;
-    }
-
     super.removeElement();
   }
 
   recoveryListeners() {
-    this.setSaveButtonHandler(this._saveButtonHandler);
-    this.setFavouriteButtonHandler(this._favouriteButtonHandler);
-    this.setRollUpHandler(this._rollUpHandler);
-    this.setDeleteButtonClickHandler(this._deleteButtonHandler);
+    this.setOnSaveButton(this._onSaveButtonClick);
+    this.setOnFavouriteButton(this._onFavouriteButtonClick);
+    this.setOnRollUp(this._onRollUpClick);
+    this.setOnDeleteButtonClick(this._onDeleteButtonClick);
     this._subscribeOnEvents();
   }
 
@@ -266,30 +268,35 @@ export default class ItemEdit extends AbstractSmartComponent {
     element.querySelectorAll(`button`).forEach((it) => {
       it.disabled = statement;
     });
+    if (statement) {
+      element.classList.add(`blockForm`);
+    }
   }
 
-  setSaveButtonHandler(handler) {
+  setOnSaveButton(handler) {
     this.getElement().querySelector(`form`)
       .addEventListener(`submit`, handler);
-    this._saveButtonHandler = handler;
+    this._onSaveButtonClick = handler;
   }
 
-  setDeleteButtonClickHandler(handler) {
+  setOnDeleteButtonClick(handler) {
     this.getElement().querySelector(`.event__reset-btn`)
       .addEventListener(`click`, handler);
-    this._deleteButtonHandler = handler;
+    this._onDeleteButtonClick = handler;
   }
 
-  setFavouriteButtonHandler(handler) {
-    this.getElement().querySelector(`.event__favorite-checkbox`)
-    .addEventListener(`click`, debounce(handler, 2000, this));
-    this._favouriteButtonHandler = handler;
+  setOnFavouriteButton(handler) {
+    const favouriteButton = this.getElement().querySelector(`.event__favorite-checkbox`);
+    if (favouriteButton) {
+      favouriteButton.addEventListener(`click`, debounce(handler, 2000, this));
+      this._onFavouriteButtonClick = handler;
+    }
   }
 
-  setRollUpHandler(handler) {
+  setOnRollUp(handler) {
     this.getElement().querySelector(`.event__rollup-btn`)
       .addEventListener(`click`, handler);
-    this._rollUpHandler = handler;
+    this._onRollUpClick = handler;
   }
 
   getData() {
@@ -298,44 +305,24 @@ export default class ItemEdit extends AbstractSmartComponent {
   }
 
   _applyFlatpickr() {
-    if (this._flatpickrStart) {
-      this._flatpickrStart.destroy();
-      this._flatpickrStart = null;
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
     }
-    const startTimes = this.getElement().querySelector(`#event-start-time-1`);
-    this._flatpickrStart = flatpickr(startTimes, {
-      allowInput: true,
+    const start = this.getElement().querySelector(`#event-start-time-1`);
+    const end = this.getElement().querySelector(`#event-end-time-1`);
+    this._flatpickr = flatpickr(start, {
+      alowInput: true,
       enableTime: true,
-      minDate: ``,
       time24hr: true,
       dateFormat: `d/m/Y H:i`,
-      defaultDate: startTimes.value,
-      onChange: ((selectedDates, dateStr) => {
-        this._startDate = getToStringDateFormat(dateStr);
-      }),
-      onClose: (() => {
-        this.rerender();
-      })
-    });
-
-    const endTimes = this.getElement().querySelectorAll(`#event-end-time-1`);
-    if (this._flatpickrEnd) {
-      this._flatpickrEnd.destroy();
-      this._flatpickrEnd = null;
-    }
-    this._flatpickrEnd = flatpickr(endTimes, {
-      allowInput: true,
-      enableTime: true,
-      minDate: this._startDate,
-      time24hr: true,
-      dateFormat: `d/m/Y H:i`,
-      defaultDate: endTimes.value,
-      onChange: ((selectedDates, dateStr) => {
-        this._endDate = getToStringDateFormat(dateStr);
-      }),
-      onClose: (() => {
-        this.rerender();
-      })
+      mode: `range`,
+      plugins: [new RangePlugin({input: end})],
+      onClose: [((selectedDates) => {
+        this._startDate = getToStringDateFormat(selectedDates[0]);
+        this._endDate = getToStringDateFormat(selectedDates[1]);
+        this.rerender.bind(this);
+      })],
     });
   }
 
@@ -358,7 +345,6 @@ export default class ItemEdit extends AbstractSmartComponent {
   }
 
   _subscribeOnEvents() {
-
     const element = this.getElement();
     const eventType = element.querySelector(`.event__type-list`);
     eventType.addEventListener(`change`, (evt) => {
@@ -376,16 +362,12 @@ export default class ItemEdit extends AbstractSmartComponent {
     const availableOffers = element.querySelector(`.event__available-offers`);
     if (availableOffers) {
       availableOffers.addEventListener(`click`, (evt) => {
-        if (evt.target.tagName !== `INPUT`) {
+        if (evt.target.tagName !== DEFAULT_TARGET_TAG) {
           return;
         }
         if (!getArrayOfActiveOffers(this._offers)
         .includes(evt.target.value)) {
-          this._travelOffers.forEach((addon) => {
-            if (addon.title === evt.target.value) {
-              this._offers.push(addon);
-            }
-          });
+          this._offers.push(this._travelOffers.find((addon) => addon.title === evt.target.value));
         } else {
           const index = this._offers.findIndex((it) => it.title === evt.target.value);
           this._offers = [].concat(this._offers.slice(0, index), this._offers.slice(index + 1));
@@ -396,8 +378,15 @@ export default class ItemEdit extends AbstractSmartComponent {
 
     const eventDestination = element.querySelector(`.event__input--destination`);
     eventDestination.addEventListener(`change`, () => {
+      if (destinationNames(this._travelCities)
+        .includes(eventDestination.value)) {
+        this._eventDestination = eventDestination.value;
+        this._getPlaceDescription(travelCities);
+        this.rerender();
+        return;
+      }
+      eventDestination.value = ``;
       this._eventDestination = eventDestination.value;
-      this._getPlaceDescription(travelCities);
       this.rerender();
     });
   }

@@ -6,7 +6,7 @@ const createArrayPrices = (array) => {
 };
 
 const addonsPrices = (data) => data.reduce((total, amount) => {
-  amount.travelAddons.forEach((price) => {
+  amount.travelAddons.map((price) => {
     total.push(price);
   });
   return total;
@@ -40,15 +40,15 @@ const createTripInfo = (points) => {
     cities = getCityNames(cityArray);
 
     datePeriod = getDatePeriod(cityArray);
-    const priceArray = [...createArrayPrices(points), ...createArrayPrices(addonsPrices(points))];
-    totalPrice = priceArray.reduce((sum, current) =>
+    const allPrices = [...createArrayPrices(points), ...createArrayPrices(addonsPrices(points))];
+    totalPrice = allPrices.reduce((sum, current) =>
       sum + current);
   }
-
   return (
     `<section class="trip-main__trip-info  trip-info">
     <div class="trip-info__main">
-          <h1 class="trip-info__title">${cities}</h1>
+          <h1 class="trip-info__title loading">
+          ${cities}</h1>
           <p class="trip-info__dates">${datePeriod}</p>
       </div>
       <p class="trip-info__cost">

@@ -17,16 +17,22 @@ const calcUniqueActivity = (points, activity) => {
 
 const calcTimeUniqueActivity = (points, activity) => {
   return points
-  .filter((point) => point.travelPoints === activity)
-  .reduce((total, point) =>
-    total + moment(point.endDate).diff(moment(point.startDate), `hours`, true), 0);
+  .reduce((total, point) => {
+    if (point.travelPoints === activity) {
+      total += moment(point.endDate).diff(moment(point.startDate), `hours`, true);
+    }
+    return total;
+  }, 0);
 };
 
 const calcPriceUniqueActivity = (points, activity) => {
   return points
-  .filter((point) => point.travelPoints === activity)
-  .reduce((total, point) =>
-    total + point.price, 0);
+  .reduce((total, point) => {
+    if (point.travelPoints === activity) {
+      total += point.price;
+    }
+    return total;
+  }, 0);
 };
 const getUpperCase = (lowerCaseArray) => lowerCaseArray.map((lowerCaseItem) =>lowerCaseItem.toUpperCase());
 
@@ -106,7 +112,7 @@ const renderChart = (colorCtx, points, array, details) => {
           fontSize: `20px`,
           fontWeight: `bold`,
           formatter: (value) => {
-            return details.remarkPlace === `start` ? `${details.remark + ` ` + Math.round(value)}` : `${Math.round(value) + ` ` + details.remark}`;
+            return details.remarkPlace === `start` ? `${details.remark} ${ Math.round(value)}` : `${Math.round(value)} ${details.remark}`;
           }
         }
       }

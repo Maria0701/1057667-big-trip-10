@@ -9,26 +9,26 @@ import TripInfoController from './controllers/trip-info.js';
 import StatisticsComponent from './components/stats.js';
 const AUTHORIZATION = `Basic dXNlckBwY=`;
 const END_POINT = `https://htmlacademy-es-10.appspot.com/big-trip`;
-
+const spinner = document.getElementById(`spinner`);
 const api = new API(END_POINT, AUTHORIZATION);
 const pointsModel = new Points();
 
 const siteMainElement = document.querySelector(`.page-body`);
 const siteHeaderElement = siteMainElement.querySelector(`.page-header__container`);
 
+const loadingElement = siteHeaderElement.querySelector(`.loading`);
+
 const siteMenuComponent = new SiteMenuComponent();
 render(siteHeaderElement, siteMenuComponent, RenderPosition.BEFOREEND);
 const mainTripControls = siteHeaderElement.querySelector(`.trip-main__trip-controls`);
 const filterController = new FilterController(mainTripControls, pointsModel);
 filterController.render();
-
 const boardComponent = new BoardComponent();
 const boardController = new TripController(boardComponent, pointsModel, api);
 
 const mainTripInfoElement = siteHeaderElement.querySelector(`.trip-main`);
 
 const tripInfoController = new TripInfoController(mainTripInfoElement, pointsModel);
-
 
 const boardPlace = siteMainElement.querySelector(`.page-main .page-body__container`);
 render(boardPlace, boardComponent, RenderPosition.BEFOREEND);
@@ -37,25 +37,25 @@ const statisticsComponent = new StatisticsComponent(pointsModel);
 render(boardPlace, statisticsComponent, RenderPosition.BEFOREEND);
 statisticsComponent.hide();
 
-export let travelCities = [];
+
 api.getDestinations()
   .then((destinations) => {
     destinations.map((it) => travelCities.push(it));
     return travelCities;
   });
 
-export let travelOffers = [];
 api.getOffers()
     .then((offers) => {
       offers.map((it) => travelOffers.push(it));
       return travelOffers;
     });
-
+tripInfoController.render();
 api.getPoints()
     .then((points) => {
+      spinner.setAttribute(`hidden`, ``);
       pointsModel.setPoints(points);
       boardController.render();
-      tripInfoController.render();
+      tripInfoController.onFullLoad();
     });
 
 siteMenuComponent.setOnChange((menuItem) => {
@@ -67,12 +67,16 @@ siteMenuComponent.setOnChange((menuItem) => {
       boardController.createPoint();
       break;
     case MenuItems.STATS:
+      siteMenuComponent.setActiveItem(MenuItems.STATS);
       boardComponent.hide();
       statisticsComponent.show();
       break;
     case MenuItems.TABLE:
+      siteMenuComponent.setActiveItem(MenuItems.TABLE);
       statisticsComponent.hide();
       boardComponent.show();
       break;
   }
 });
+export const travelCities = [];
+export const travelOffers = [];

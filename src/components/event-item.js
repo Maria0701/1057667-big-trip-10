@@ -1,19 +1,6 @@
 import {getEventTime, getTimeDifference, getTimeIso} from '../utils/common.js';
 import AbstractComponent from './abstract-component.js';
-import {TRAVEL_TRANSPORT, Placeholder, CURRENCY} from '../const.js';
-
-export const createArrayStartDates = (array) => {
-  return array.map((it) => it.startDate);
-};
-
-export const createArrayEndDates = (array) => {
-  return array.map((it) => it.endDate);
-};
-
-export const createArrayCities = (array) => {
-  return array.map((it) => it.destination.name);
-};
-
+import {TRAVEL_TRANSPORT, Placeholder, CURRENCY, DEFAULT_OFFER} from '../const.js';
 
 const generateTravelAddonMarkup = (addons) => {
   return addons
@@ -36,7 +23,7 @@ const createEventItemTemplate = (travelEvent) => {
     `<li class="trip-events__item">
       <div class="event">
         <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/${travelPoints}.png" alt="Event type icon">
+          <img class="event__type-icon" width="42" height="42" src="img/icons/${travelPoints ? travelPoints : DEFAULT_OFFER}.png" alt="Event type icon">
         </div>
         <h3 class="event__title">${travelPoints}  ${TRAVEL_TRANSPORT.includes(travelPoints) ? Placeholder.TRANSPORT : Placeholder.ACTION} ${destination.name}</h3>
         <div class="event__schedule">
@@ -65,6 +52,10 @@ const createEventItemTemplate = (travelEvent) => {
   );
 };
 
+export const createArrayStartDates = (array) => {
+  return array.map((it) => it.startDate);
+};
+
 export default class Event extends AbstractComponent {
   constructor(event) {
     super();
@@ -75,7 +66,7 @@ export default class Event extends AbstractComponent {
     return createEventItemTemplate(this._event);
   }
 
-  setEditButtonEventHandler(handler) {
+  setOnEditButtonEvent(handler) {
     this.getElement().querySelector(`.event__rollup-btn`)
      .addEventListener(`click`, handler);
   }

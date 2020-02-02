@@ -8,6 +8,7 @@ const generateBoardMarkup = () => {
       <!-- Сортировка -->
 
       <!-- Контент -->
+
     </section>`
   );
 };

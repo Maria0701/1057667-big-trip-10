@@ -29,7 +29,7 @@ export default class Filter extends AbstractComponent {
     return createFilterTemplate(this._filters);
   }
 
-  setFilterChangeHandler(handler) {
+  setOnFilterChange(handler) {
     this.getElement().addEventListener(`change`, (evt) => {
       const filterType = evt.target.value;
       handler(filterType);
