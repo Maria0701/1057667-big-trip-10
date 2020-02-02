@@ -1,8 +1,6 @@
 import AbstractComponent from './abstract-component.js';
 import moment from 'moment';
 
-const LOADING_MESSAGE = `Loading...`;
-
 const createArrayPrices = (array) => {
   return array.map((it) => it.price);
 };
@@ -46,11 +44,11 @@ const createTripInfo = (points) => {
     totalPrice = allPrices.reduce((sum, current) =>
       sum + current);
   }
-
   return (
     `<section class="trip-main__trip-info  trip-info">
     <div class="trip-info__main">
-          <h1 class="trip-info__title loading">${cities}</h1>
+          <h1 class="trip-info__title loading">
+          ${cities}</h1>
           <p class="trip-info__dates">${datePeriod}</p>
       </div>
       <p class="trip-info__cost">

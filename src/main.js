@@ -9,12 +9,14 @@ import TripInfoController from './controllers/trip-info.js';
 import StatisticsComponent from './components/stats.js';
 const AUTHORIZATION = `Basic dXNlckBwY=`;
 const END_POINT = `https://htmlacademy-es-10.appspot.com/big-trip`;
-
+const spinner = document.getElementById(`spinner`);
 const api = new API(END_POINT, AUTHORIZATION);
 const pointsModel = new Points();
 
 const siteMainElement = document.querySelector(`.page-body`);
 const siteHeaderElement = siteMainElement.querySelector(`.page-header__container`);
+
+const loadingElement = siteHeaderElement.querySelector(`.loading`);
 
 const siteMenuComponent = new SiteMenuComponent();
 render(siteHeaderElement, siteMenuComponent, RenderPosition.BEFOREEND);
@@ -47,12 +49,13 @@ api.getOffers()
       offers.map((it) => travelOffers.push(it));
       return travelOffers;
     });
-
+tripInfoController.render();
 api.getPoints()
     .then((points) => {
+      spinner.setAttribute(`hidden`, ``);
       pointsModel.setPoints(points);
       boardController.render();
-      tripInfoController.render();
+      tripInfoController.onFullLoad();
     });
 
 siteMenuComponent.setOnChange((menuItem) => {

@@ -22,8 +22,8 @@ export default class TripInfoController {
     }
   }
 
-  onLoad() {
-    this._tripInfoComponent.querySelector(`trip-info__title`).classList.remove(`loading`);
+  onFullLoad() {
+    this._tripInfoComponent.getElement().querySelector(`.trip-info__title`).classList.remove(`loading`);
   }
 
   _onDataChange() {
